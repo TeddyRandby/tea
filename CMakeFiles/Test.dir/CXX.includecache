@@ -1,0 +1,18 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/tr/Repos/curses-test/TestConfig.h
+
+/home/tr/Repos/curses-test/nctest.cpp
+curses.h
+-
+iostream
+-
+TestConfig.h
+/home/tr/Repos/curses-test/TestConfig.h
+

@@ -1,0 +1,7 @@
+[
+{
+  "directory": "/home/tr/Repos/curses-test",
+  "command": "/usr/bin/c++      -o CMakeFiles/Test.dir/nctest.cpp.o -c /home/tr/Repos/curses-test/nctest.cpp",
+  "file": "/home/tr/Repos/curses-test/nctest.cpp"
+}
+]
