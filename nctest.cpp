@@ -1,6 +1,6 @@
 #include <curses.h>
 #include <iostream>
-#include "TestConfig.h"
+#include "TeaConfig.h"
 
 #define ITERMAX 10000
 

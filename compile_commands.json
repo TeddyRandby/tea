@@ -1,7 +1,7 @@
 [
 {
-  "directory": "/home/tr/Repos/curses-test",
-  "command": "/usr/bin/c++      -o CMakeFiles/Test.dir/nctest.cpp.o -c /home/tr/Repos/curses-test/nctest.cpp",
-  "file": "/home/tr/Repos/curses-test/nctest.cpp"
+  "directory": "/home/tr/Repos/tea",
+  "command": "/usr/bin/clang++   -I.    -std=gnu++2a -o CMakeFiles/Test.dir/nctest.cpp.o -c /home/tr/Repos/tea/nctest.cpp",
+  "file": "/home/tr/Repos/tea/nctest.cpp"
 }
 ]

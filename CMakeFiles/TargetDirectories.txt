@@ -1,3 +1,0 @@
-/home/tr/Repos/curses-test/CMakeFiles/rebuild_cache.dir
-/home/tr/Repos/curses-test/CMakeFiles/edit_cache.dir
-/home/tr/Repos/curses-test/CMakeFiles/Test.dir
