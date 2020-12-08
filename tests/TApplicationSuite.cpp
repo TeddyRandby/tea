@@ -1,19 +1,20 @@
-#ifndef AllTests_DEFINED
-#define AllTests_DEFINED
+#ifndef TApplicationSuite_DEFINED 
+#define TApplicationSuite_DEFINED 
 
 #include <gtest/gtest.h>
+#include "../src/TApplication.hpp"
 
 // The fixture for testing class Foo.
-class TestAll: public ::testing::Test {
+class TApplicationSuite: public ::testing::Test {
  protected:
   // You can remove any or all of the following functions if their bodies would
   // be empty.
 
-  TestAll() {
+  TApplicationSuite() {
      // You can do set-up work for each test here.
   }
 
-  ~TestAll() override {
+  ~TApplicationSuite() override {
      // You can do clean-up work that doesn't throw exceptions here.
   }
 
@@ -34,19 +35,10 @@ class TestAll: public ::testing::Test {
   // for Foo.
 };
 
-// Tests that the Foo::Bar() method does Abc.
-TEST_F(TestAll, MethodBarDoesAbc) {
-    // Test something here
-}
-
-// Tests that Foo does Xyz.
-TEST_F(TestAll, DoesXyz) {
-  // Exercises the Xyz feature of Foo.
-}
-
-int main(int argc, char **argv) {
-  ::testing::InitGoogleTest(&argc, argv);
-  return RUN_ALL_TESTS();
+TEST_F(TApplicationSuite, InitializesTestMode) {
+   TApplication tea = TApplication([](auto tea){}, true);
+   EXPECT_EQ(tea.size().x(), 400); 
+   EXPECT_EQ(tea.size().y(), 200);
 }
 
 #endif

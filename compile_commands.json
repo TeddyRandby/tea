@@ -1,7 +1,31 @@
 [
 {
-  "directory": "/home/tr/Repos/tea",
-  "command": "/usr/bin/clang++   -I.    -std=gnu++2a -o CMakeFiles/Test.dir/nctest.cpp.o -c /home/tr/Repos/tea/nctest.cpp",
-  "file": "/home/tr/Repos/tea/nctest.cpp"
+  "directory": "/home/tr/Repos/tea/build",
+  "command": "/bin/clang++-10   -I../src -I.  -g   -pthread -std=gnu++2a -o CMakeFiles/Tests.dir/tests/TComponentSuite.cpp.o -c /home/tr/Repos/tea/tests/TComponentSuite.cpp",
+  "file": "/home/tr/Repos/tea/tests/TComponentSuite.cpp"
+},
+
+{
+  "directory": "/home/tr/Repos/tea/build",
+  "command": "/bin/clang++-10   -I../src -I.  -g   -pthread -std=gnu++2a -o CMakeFiles/Tests.dir/tests/TApplicationSuite.cpp.o -c /home/tr/Repos/tea/tests/TApplicationSuite.cpp",
+  "file": "/home/tr/Repos/tea/tests/TApplicationSuite.cpp"
+},
+
+{
+  "directory": "/home/tr/Repos/tea/build",
+  "command": "/bin/clang++-10   -I../src -I.  -g   -pthread -std=gnu++2a -o CMakeFiles/Tests.dir/tests/TVec2Suite.cpp.o -c /home/tr/Repos/tea/tests/TVec2Suite.cpp",
+  "file": "/home/tr/Repos/tea/tests/TVec2Suite.cpp"
+},
+
+{
+  "directory": "/home/tr/Repos/tea/build",
+  "command": "/bin/clang++-10   -I../src -I.  -g   -pthread -std=gnu++2a -o CMakeFiles/Tests.dir/tests/TContentSuite.cpp.o -c /home/tr/Repos/tea/tests/TContentSuite.cpp",
+  "file": "/home/tr/Repos/tea/tests/TContentSuite.cpp"
+},
+
+{
+  "directory": "/home/tr/Repos/tea/build",
+  "command": "/bin/clang++-10   -I../src -I.  -g   -std=gnu++2a -o CMakeFiles/Sandbox.dir/TSandbox.cpp.o -c /home/tr/Repos/tea/TSandbox.cpp",
+  "file": "/home/tr/Repos/tea/TSandbox.cpp"
 }
 ]
