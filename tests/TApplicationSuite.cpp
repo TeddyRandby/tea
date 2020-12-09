@@ -24,21 +24,24 @@ class TApplicationSuite: public ::testing::Test {
   void SetUp() override {
      // Code here will be called immediately after the constructor (right
      // before each test).
+     tea = TApplication();
   }
 
   void TearDown() override {
      // Code here will be called immediately after each test (right
      // before the destructor).
+     tea.generate();
+     tea.~TApplication();
   }
 
   // Class members declared here can be used by all tests in the test suite
   // for Foo.
+  TApplication tea;
 };
 
 TEST_F(TApplicationSuite, InitializesTestMode) {
-   TApplication tea = TApplication([](auto tea){}, true);
-   EXPECT_EQ(tea.size().x(), 400); 
-   EXPECT_EQ(tea.size().y(), 200);
+   EXPECT_TRUE(tea.size().x() != 0); 
+   EXPECT_TRUE(tea.size().y() != 0);
 }
 
 #endif

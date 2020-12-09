@@ -3,17 +3,29 @@
 
 #include "TContent.hpp"
 #include "TVec2.hpp"
-#include <iostream>
 #include <assert.h>
 #include <functional>
+#include <iostream>
 #include <string>
 #include <vector>
+#include <curses.h>
 
 class TComponent {
+
+friend class TWindow;
+
 protected:
+  typedef std::function<void(TComponent &)> Generator;
   enum Direction { VERTICAL, HORIZONTAL };
   typedef std::vector<TComponent> SubComponents;
-  typedef std::function<void(TComponent&)> Generator;
+
+  /**
+   * A TComponent cannot have a nullptr for a parent.
+   */
+  TComponent(TComponent *p, Generator gen) : fGenerator(gen) {
+    assert(p);
+    fParent = p;
+  }
 
 public:
   /**
@@ -125,8 +137,6 @@ public:
     return *this;
   }
 
-  AbsPos absPos() const noexcept { return {fAbsX, fAbsY}; }
-
   /**
    * Run the user-provided Generator.
    * Flush previous data.
@@ -135,7 +145,7 @@ public:
    */
   void generate() noexcept {
     fGenerator(*this);
-    for (TComponent& c : fSubComponents) {
+    for (TComponent &c : fSubComponents) {
       c.generate();
     }
   }
@@ -152,7 +162,8 @@ public:
    * component.
    */
   virtual SizeD size() const {
-    const auto inner = fParent->size() - fParent->sizeContent();
+    const auto inner =
+        fParent->size() - fParent->sizePadding();
     const auto direction = fParent->dir();
 
     // Both width and height are fixed relative to parent.
@@ -185,14 +196,21 @@ public:
     return SizeD(w, h);
   }
 
-protected:
   /**
-   * A TComponent cannot have a nullptr for a parent.
+   * Return the offset relative to this component where drawing the first child begins.
    */
-  TComponent(TComponent *p, Generator gen) : fGenerator(gen) {
-    assert(p);
-    fParent = p;
+  SizeD offset() const {
+    int offX, offY;
+    if (dir() == Direction::HORIZONTAL) {
+      offX = sizeBody().x() + margin() + hasBorder();
+      offY = margin() + sizeHeader().y();
+    } else {
+      offX = margin() + hasBorder();  
+      offY = sizeBody().y() + margin() + sizeHeader().y();
+    }
+    return {offX, offY};
   }
+
 private:
   /**
    * A boolean to toggle a border on and off.
@@ -242,34 +260,25 @@ private:
   float fHeight = -1;
 
   /**
-   * X and Y position of the top left corner of the component.
-   */
-  int fAbsX = 0;
-  int fAbsY = 0;
-
-  /**
-   * Reset the Component to be generated again.
-   * NOTE: Clearing the children is preferred to calling their flush()
-   * methods because children are added in the generate() call.
-   */
-  void flush() noexcept {
-    fContent.flush();
-    fSubComponents.clear();
-  }
-
-  /**
    * Delegated helper getters.
    * ContentSize here INCLUDES border and margin.
    * Returns the size of the content given a width.
-   * A w of -1 turns off text wrapping.
    */
-  SizeD sizeContent() const {
-    return fContent.sizeContent() + (2 * hasBorder()) + (margin());
+  SizeD sizeBody() const { return fContent.sizeContent(); }
+
+  SizeD sizeTitle() const { return fContent.sizeTitle(); }
+
+  SizeD sizePadding() const {
+    return SizeD(0, 0) + (2 * hasBorder()) + (margin());
   }
 
-  /**
-   */
-  SizeD sizeTitle() const { return fContent.sizeTitle() - SizeD(0,hasBorder()); }
+  SizeD sizeHeader() const { 
+    if (sizeTitle().y() > 0) {
+     return sizeTitle(); 
+    } else {
+      return {0, hasBorder() };
+    }
+  }
 
   /**
    * Recursively calculate the width that this component
@@ -277,8 +286,8 @@ private:
    * NOTE: This does not do any wrapping.
    */
   int width() const {
-    int w = sizeContent().x();
-    for (auto c : fSubComponents) {
+    int w = sizeBody().x() + sizePadding().x();
+    for (auto &c : fSubComponents) {
       w += c.width();
     }
     return std::max<int>(sizeTitle().x(), w);
@@ -288,12 +297,16 @@ private:
    * Recursively calculate the height that this component
    * and all children components will fill.
    * NOTE: This does not do any wrapping.
+   * NOTE: Because the title is IN the border (if the border is present)
+   *  This has to be accounted for in order to not count the border twice.
    */
   int height() const {
-    int h = sizeContent().y() + sizeTitle().y();
-    for (auto c : fSubComponents) {
+    int h =
+        sizeBody().y() + sizeTitle().y() + sizePadding().y() - hasBorder();
+    for (auto &c : fSubComponents) {
       h += c.height();
     }
     return h;
-  }};
+  }
+};
 #endif

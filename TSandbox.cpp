@@ -1,24 +1,47 @@
 #ifndef TSandbox_DEFINED
 #define TSandbox_DEFINED
 
-#include <curses.h>
-#include <iostream>
+#include <TApplication.hpp>
+#include "TComponent.hpp"
 #include "TeaConfig.h"
 
-#include "src/TApplication.hpp"
 
 int main(int argc, char* argv[]) {
-   
-   auto tea = TApplication([](auto &app){
-     app.addLine("Test Line");
-     app.addTitle("Test title");
-   });
+  
+  initscr();
+  addch('0');
 
-   tea.generate();
+  auto tea = TApplication([](TComponent& app){
+    app.addTitle("Application");
+    app.addLine("Hello World");
+    app.addLine("Here is some content.");
 
-   endwin();
+    app.addComponent([](TComponent& section) {
+      section.setWH({.5,.5}).toggleDirection(); 
+      section.addLine("I'm horizontal");
 
-   exit(0);
+      section.addComponent([](TComponent& right) {
+        right.addTitle("right"); 
+      });
+    });
+
+    app.addComponent([](TComponent& section2) {
+      section2.addTitle("I am section two");      
+
+      section2.addComponent([](TComponent& bottom) {
+        bottom.addTitle("bottom"); 
+      });
+    });
+
+  });
+
+    tea.generate();
+    tea.draw();
+
+    getch();
+    endwin();
+
+    exit(0);
 };
 
 #endif

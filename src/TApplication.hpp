@@ -1,9 +1,9 @@
 #ifndef TApplication_DEFINED
 #define TApplication_DEFINED
 
-#include "TComponent.hpp"
-#include "TVec2.hpp"
-#include <curses.h>
+
+#include <TComponent.hpp>
+#include <TWindow.hpp>
 
 class TApplication : public TComponent {
   
@@ -14,20 +14,7 @@ class TApplication : public TComponent {
    * Therefore, an application's parent is itself.
    * The curses bool is a temporary solution to curses breaking unit tests.
    */
-  TApplication(Generator gen, bool test=true, int cols=400, int rows=200): TComponent(this, gen) {
-    if (!test) {
-        initscr();
-        noecho();
-
-        this->fCols = COLS;
-        this->fRows = LINES;
-
-        clear();
-    } else {
-        this->fCols = cols;
-        this->fRows = rows;
-    }
-  };
+  TApplication(Generator gen=[](auto&){}): TComponent(this, gen) {};
 
   ~TApplication() {};
 
@@ -36,21 +23,24 @@ class TApplication : public TComponent {
    * The size of this container is always the screen size.
    */
   SizeD size() const override {
-      return screen();
+      return fWindow.size();
   }
 
+  /**
+   * Manually set the width and height of the application.
+   */
+   TApplication &setSize(const int w, const int h) noexcept {
+    fWindow.setSize(w,h);
+    return *this;
+   }
+
+   void draw() {
+     fWindow.draw(0,0,*this);     
+   }
 
   private:
 
-  SizeD screen() const {return {fCols, fRows};}
-
-  /**
-   * The actual width and height of the component.
-   * NOTE: This is also INCLUSIVE of the border.
-   * NOTE: Struct SizeD(iscrete) is for getting values.
-   */
-  int fCols = 0;
-  int fRows = 0;
+  TWindow fWindow;
 
 };
 

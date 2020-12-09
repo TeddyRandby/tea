@@ -11,7 +11,7 @@ class TComponentSuite : public ::testing::Test {protected:
   // You can remove any or all of the following functions if their bodies would
   // // be empty.
 
-  TComponentSuite() : tea([](TComponent &tea) {}, true) {
+  TComponentSuite() {
     // You can do set-up work for each test here.
   }
 
@@ -25,27 +25,26 @@ class TComponentSuite : public ::testing::Test {protected:
   void SetUp() override {
     // Code here will be called immediately after the constructor (right
     // before each test).
-    tea = TApplication([](auto &tea) {}, true);
+    tea = TApplication().setSize(400,200);
   }
 
   void TearDown() override {
     // Code here will be called immediately after each test (right
     // before the destructor).
-  tea.generate();
+    tea.generate();
+    endwin();
   }
 
   // Class members declared here can be used by all tests in the test suite
   // for Foo.
 
-  TApplication tea;};
+  TApplication tea;
+};
 
 TEST_F(TComponentSuite, Initializes) {
   tea.addComponent([](TComponent &test) {
     EXPECT_EQ(test.content(), "");
     test.addLine("Hello World");
-    auto pos = test.absPos();
-    EXPECT_EQ(pos.x(), 0);
-    EXPECT_EQ(pos.y(), 0);
     EXPECT_EQ(test.dir(), 0);
   });
 }
@@ -175,12 +174,11 @@ TEST_F(TComponentSuite, ManagesTitleAndBorderSize) {
   tea.addComponent([&](TComponent &test) {
     test.addLine("Hello World").addTitle("Title").toggleBorder();
 
-    auto sz= test.size();
+    auto sz = test.size();
 
     // After generation, new size includes content line.
     EXPECT_EQ(sz.x(), 398);
     EXPECT_EQ(sz.y(), 2);
-
   });
 }
 
