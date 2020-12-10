@@ -2,7 +2,7 @@
 #define TApplicationSuite_DEFINED 
 
 #include <gtest/gtest.h>
-#include "../src/TApplication.hpp"
+#include "../src/tea/component/TApplication.hpp"
 
 // The fixture for testing class Foo.
 class TApplicationSuite: public ::testing::Test {

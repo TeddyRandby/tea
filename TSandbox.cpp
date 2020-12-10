@@ -1,47 +1,52 @@
 #ifndef TSandbox_DEFINED
 #define TSandbox_DEFINED
 
-#include <TApplication.hpp>
-#include "TComponent.hpp"
-#include "TeaConfig.h"
+#include "src/tea/component/TApplication.hpp"
+#include "build/TeaConfig.h"
 
+typedef struct Proportional {
+  Proportional(const float w, const float h):fW(w),fH(h) {}
+  void operator()(TComponent& c) {
+      c.setWH({fW, fH});
+      c.addTitle("Proportional");
+  } 
 
-int main(int argc, char* argv[]) {
-  
-  initscr();
-  addch('0');
+  private:
+  float fW;
+  float fH;
 
-  auto tea = TApplication([](TComponent& app){
+} Half;
+
+void borderless(TComponent &c) {
+  c.addTitle("Borderless");
+  c.toggleBorder(); 
+}
+
+int main(int argc, char *argv[]) {
+
+  // Components can be lambdas...
+  auto tea = TApplication([](TComponent &app) {
     app.addTitle("Application");
-    app.addLine("Hello World");
-    app.addLine("Here is some content.");
+    app.addTitle(" Press esc to quit.");
 
-    app.addComponent([](TComponent& section) {
-      section.setWH({.5,.5}).toggleDirection(); 
-      section.addLine("I'm horizontal");
+    // Callabale structs...
+    Proportional half = Proportional(.5,.5);
+    app.addComponent(half);
 
-      section.addComponent([](TComponent& right) {
-        right.addTitle("right"); 
-      });
+    app.addComponent([](TComponent &section2) {
+      section2.addTitle("I am section two");
+
+      // Or just plain functions.
+      section2.addComponent(borderless);
     });
 
-    app.addComponent([](TComponent& section2) {
-      section2.addTitle("I am section two");      
-
-      section2.addComponent([](TComponent& bottom) {
-        bottom.addTitle("bottom"); 
-      });
-    });
-
+    // I can even reuse this function to affect another component.
+    borderless(app);
   });
 
-    tea.generate();
-    tea.draw();
+  tea.run();
 
-    getch();
-    endwin();
-
-    exit(0);
+  exit(0);
 };
 
 #endif

@@ -3,7 +3,7 @@
 
 #include <gtest/gtest.h>
 #include <iostream>
-#include "../src/TContent.hpp"
+#include "../src/tea/component/TContent.hpp"
 
 // The fixture for testing class Foo.
 class TContentSuite: public ::testing::Test {

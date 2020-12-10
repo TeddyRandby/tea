@@ -2,7 +2,7 @@
 #define TVec2Suite_DEFINED
 
 #include <gtest/gtest.h>
-#include "../src/TVec2.hpp"
+#include "../src/tea/utils/TVec2.hpp"
 #include <cmath>
 
 // The fixture for testing class Foo.

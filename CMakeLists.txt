@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
-project(Test VERSION 1.0)
+project(Tea LANGUAGES CXX VERSION 1.0)
 
 #ENV vars
 set(CMAKE_EXPORT_COMIPLE_COMMANDS ON)
@@ -16,46 +16,71 @@ find_package(Curses REQUIRED)
 
 configure_file(TeaConfig.h.in TeaConfig.h)
 
-add_executable(Sandbox
+add_library(screen
+      ../src/tea/screen/TScreen.hpp
+      ../src/tea/screen/TBorder.cpp
+      ../src/tea/screen/THeader.cpp
+      ../src/tea/screen/TBody.cpp)
+
+add_library(component
+      ../src/tea/component/TComponent.hpp
+      ../src/tea/component/TApplication.hpp
+      ../src/tea/component/TContent.hpp)
+
+set_target_properties(component PROPERTIES LINKER_LANGUAGE CXX)
+
+add_library(utils
+      ../src/tea/utils/TVec2.hpp)
+
+set_target_properties(utils PROPERTIES LINKER_LANGUAGE CXX)
+
+add_library(tea::screen ALIAS screen)
+add_library(tea::component ALIAS component)
+add_library(tea::utils ALIAS utils)
+
+target_link_libraries(component 
+      PUBLIC 
+      utils)
+
+target_link_libraries(screen
+      PUBLIC
+      component
+      curses)
+
+add_executable(sandbox
       TSandbox.cpp)
 
-add_executable(Tests 
+add_executable(tests 
       ../tests/TComponentSuite.cpp
       ../tests/TApplicationSuite.cpp
       ../tests/TVec2Suite.cpp
       ../tests/TContentSuite.cpp)
 
-target_compile_features(Tests 
+target_compile_features(tests 
       PRIVATE
       cxx_std_20)
 
-target_compile_features(Sandbox 
+target_compile_features(sandbox 
       PRIVATE
       cxx_std_20)
 
-target_include_directories(Tests 
+target_include_directories(tests 
       PUBLIC
-      "${PROJECT_SOURCE_DIR}/src"
-      "${PROJECT_BINARY_DIR}"
-      "${GTEST_INCLUDE_DIR}"
-      "${CURSES_INCLUDE_DIR}"
-      )
+      src)
 
-target_include_directories(Sandbox 
+target_include_directories(sandbox 
       PUBLIC
-      "${PROJECT_SOURCE_DIR}/src"
-      "${PROJECT_BINARY_DIR}"
-      "${CURSES_INCLUDE_DIR}"
-      )
+      src)
 
-target_link_libraries(Sandbox
-      PUBLIC 
-      "${CURSES_LIBRARIES}")
-
-target_link_libraries(Tests
-      PUBLIC 
-      "${GTEST_LIBRARIES}"
-      "${GTEST_MAIN_LIBRARIES}"
-      "${CURSES_LIBRARIES}"
+target_link_libraries(sandbox
       PRIVATE 
+      screen
+      curses)
+
+target_link_libraries(tests
+      PRIVATE 
+      gtest
+      gtest_main
+      curses
+      screen
       Threads::Threads)

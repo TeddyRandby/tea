@@ -1,9 +1,8 @@
 #ifndef TContent_DEFINED
 #define TContent_DEFINED
 
-#include "TVec2.hpp"
+#include "../utils/TVec2.hpp"
 #include <string>
-#include <vector>
 
 class TContent {
 

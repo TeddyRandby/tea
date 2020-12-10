@@ -2,17 +2,19 @@
 #define TComponent_DEFINED
 
 #include "TContent.hpp"
-#include "TVec2.hpp"
+#include "../utils/TVec2.hpp"
 #include <assert.h>
 #include <functional>
-#include <iostream>
 #include <string>
 #include <vector>
 #include <curses.h>
 
 class TComponent {
 
-friend class TWindow;
+/**
+ * The screen class needs access in order to draw components.
+ */
+friend class TScreen;
 
 protected:
   typedef std::function<void(TComponent &)> Generator;
@@ -144,6 +146,7 @@ public:
    * Update these components IN PLACE.
    */
   void generate() noexcept {
+    flush();
     fGenerator(*this);
     for (TComponent &c : fSubComponents) {
       c.generate();
@@ -199,7 +202,7 @@ public:
   /**
    * Return the offset relative to this component where drawing the first child begins.
    */
-  SizeD offset() const {
+  SizeD offsetChildren() const {
     int offX, offY;
     if (dir() == Direction::HORIZONTAL) {
       offX = sizeBody().x() + margin() + hasBorder();
@@ -258,6 +261,16 @@ private:
    */
   float fWidth = -1;
   float fHeight = -1;
+
+  /**
+   * Wipe children and content.
+   * Just generate new children instead of calling children's flush.
+   */
+  TComponent &flush() {
+    fContent.flush();
+    fSubComponents.clear();
+    return *this;
+  }
 
   /**
    * Delegated helper getters.

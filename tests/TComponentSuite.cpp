@@ -2,8 +2,7 @@
 #define TComponentTests_DEFINED
 
 #include <gtest/gtest.h>
-#include "../src/TApplication.hpp"
-#include "../src/TComponent.hpp"
+#include "../src/tea/component/TApplication.hpp"
 #include <iostream>
 
 // The fixture for testing class Foo.
