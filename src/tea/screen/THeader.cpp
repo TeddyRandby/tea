@@ -4,41 +4,29 @@
 #include "TScreen.hpp"
 
 void TScreen::drawHeader(const int x, const int y, const TComponent &c) {
-  const int startX = x + 1;
-  const int startY = y;
-  move(startY, startX);
+  const Margin m = c.fStyle.getMargin();
+  const int startX = x + m.l();
+  const int startY = y + m.t();
 
   const SizeD w = c.size();
 
   int locX, locY;
-  locX = x;
-  locY = y;
+  locX = startX;
+  locY = startY;
 
-  const int capX = x + w.x();
-  const int capY = y + w.y();
+  const int capX = startX + w.x() - m.r();
 
   for (char ch : c.title()) {
 
-    if (locX > capX) {
-      locX = x;
-      locY++;
-      move(locY, locX);
-      if (locY > capY) {
-        break;
-      }
-    }
-
-    if (ch == '\n') {
-      locY++;
-      locX = x;
-      move(locY, locX);
+    if (locX > capX || ch == '\n') {
+      break;
     } else if(ch == ' ') {
       locX++;  
-      move(locY, locX);
     } else {
+      addPixel(locX,locY,ch);
       locX++;
-      addch(ch);
     }
+
   }
 }
 

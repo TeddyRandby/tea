@@ -3,6 +3,7 @@
 
 #include <curses.h>
 #include "../component/TComponent.hpp"
+#include <iostream>
 
 class TScreen {
 public:
@@ -17,19 +18,18 @@ public:
   ~TScreen() { }
 
   void draw(const int x, const int y, const TComponent &c) {
-    SizeD winSize = c.size() - 1;
 
     drawBorder(x, y, c);
     drawHeader(x, y, c);
     drawBody(x, y, c);
 
-    SizeD offset = c.offsetChildren() + SizeD{x,y};
+    SizeD offset = c.offset() + SizeD{x,y};
     for (auto &sc : c.fSubComponents) {
       draw(offset.x(), offset.y(), sc);
       if (c.dir() == TComponent::HORIZONTAL) {
-        offset += {sc.size().x() + 1,0};
+        offset += {sc.size().x(),0};
       } else {
-        offset += {0, sc.size().y() + 1};
+        offset += {0, sc.size().y()};
       }
     }
 
@@ -45,6 +45,11 @@ public:
   }
 
   SizeD size() const noexcept { return {fCols, fRows}; }
+
+  void inline addPixel(const int x, const int y, const chtype ch) {
+      mvaddch(y,x,ch); 
+  }
+
 private:
 
   /**

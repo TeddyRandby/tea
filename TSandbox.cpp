@@ -1,47 +1,63 @@
 #ifndef TSandbox_DEFINED
 #define TSandbox_DEFINED
 
-#include "src/tea/component/TApplication.hpp"
+#include "src/tea/screen/TApplication.hpp"
 #include "build/TeaConfig.h"
 
 typedef struct Proportional {
   Proportional(const float w, const float h):fW(w),fH(h) {}
   void operator()(TComponent& c) {
-      c.setWH({fW, fH});
+      c.setWH(fW, fH);
       c.addTitle("Proportional");
+      c.setBorder(1);
   } 
 
   private:
   float fW;
   float fH;
 
-} Half;
+} Proportional;
 
 void borderless(TComponent &c) {
   c.addTitle("Borderless");
-  c.toggleBorder(); 
+  c.setBorder(0); 
 }
 
+void bigMargin(TComponent &c) {
+  c.setMargin(2);
+}
+
+// FOr some reason, all the components under this are
+// starting offset one too many.
 int main(int argc, char *argv[]) {
 
   // Components can be lambdas...
   auto tea = TApplication([](TComponent &app) {
-    app.addTitle("Application");
-    app.addTitle(" Press esc to quit.");
+    app.addLine("Press Esc to quit");
+    app.addTitle(" Application");
+    app.toggleDirection();
+    app.setPadding(3);
 
     // Callabale structs...
-    Proportional half = Proportional(.5,.5);
-    app.addComponent(half);
+    Proportional left = Proportional(.2,.5);
+    app.render(left);
 
-    app.addComponent([](TComponent &section2) {
-      section2.addTitle("I am section two");
+    app.render([](TComponent &section2) {
+      section2.addTitle(" Section 2");
+
+  
+      // They can nest as much as you want too.
 
       // Or just plain functions.
-      section2.addComponent(borderless);
+      section2.render(borderless);
+
+      // You can even use function components to modify components!
+      bigMargin(section2);
     });
 
-    // I can even reuse this function to affect another component.
-    borderless(app);
+    Proportional right = Proportional(.3,.5);
+    app.render(right);
+
   });
 
   tea.run();

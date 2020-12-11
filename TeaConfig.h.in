@@ -1,3 +1,3 @@
-// Configured options and settings for Test
-#define Test_VERSION_MAJOR @Test_VERSION_MAJOR@
-#define Test_VERSION_MINOR @Test_VERSION_MINOR@
+// Configured options and settings for Tea
+#define Tea_VERSION_MAJOR @Tea_VERSION_MAJOR@
+#define Tea_VERSION_MINOR @Tea_VERSION_MINOR@

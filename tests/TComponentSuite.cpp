@@ -2,7 +2,7 @@
 #define TComponentTests_DEFINED
 
 #include <gtest/gtest.h>
-#include "../src/tea/component/TApplication.hpp"
+#include "../src/tea/screen/TApplication.hpp"
 #include <iostream>
 
 // The fixture for testing class Foo.
@@ -41,7 +41,7 @@ class TComponentSuite : public ::testing::Test {protected:
 };
 
 TEST_F(TComponentSuite, Initializes) {
-  tea.addComponent([](TComponent &test) {
+  tea.render([](TComponent &test) {
     EXPECT_EQ(test.content(), "");
     test.addLine("Hello World");
     EXPECT_EQ(test.dir(), 0);
@@ -49,7 +49,7 @@ TEST_F(TComponentSuite, Initializes) {
 }
 
 TEST_F(TComponentSuite, GeneratesContent) {
-  tea.addComponent([](auto &test) {
+  tea.render([](auto &test) {
     // After generating, the line appears in the content.
     test.addLine("Hello World").addTitle("Title");
     EXPECT_EQ(test.content(), "Hello World\n");
@@ -58,7 +58,7 @@ TEST_F(TComponentSuite, GeneratesContent) {
 }
 
 TEST_F(TComponentSuite, ManagesSimpleContentSize) {
-  tea.addComponent([](TComponent &test) {
+  tea.render([](TComponent &test) {
     test.addLine("Hello World");
     test.addTitle("Title");
 
@@ -70,8 +70,8 @@ TEST_F(TComponentSuite, ManagesSimpleContentSize) {
 }
 
 TEST_F(TComponentSuite, ManagesRelativeSize) {
-  tea.addComponent([](TComponent &test) {
-    test.addLine("Hello World").addTitle("Title").setWH(.5, .3);
+  tea.render([](TComponent &test) {
+    test.addLine("Hello World").addTitle("Title").setWH(.5f, .3f);
 
     auto sz = test.size();
     // After generation, new size includes content line.
@@ -81,7 +81,7 @@ TEST_F(TComponentSuite, ManagesRelativeSize) {
 }
 
 TEST_F(TComponentSuite, ManagesSimpleTitleSize) {
-  tea.addComponent([](TComponent &test) {
+  tea.render([](TComponent &test) {
     test.addLine("Hello World");
     test.addTitle("This title is longer than the content.");
 
@@ -93,7 +93,7 @@ TEST_F(TComponentSuite, ManagesSimpleTitleSize) {
 }
 
 TEST_F(TComponentSuite, ManagesReverseSimpleTitleSize) {
-  tea.addComponent([&](TComponent &test) {
+  tea.render([&](TComponent &test) {
     test.addLine("Hello World");
     test.addTitle("This title is longer than the content.");
 
@@ -106,7 +106,7 @@ TEST_F(TComponentSuite, ManagesReverseSimpleTitleSize) {
   });}
 
 TEST_F(TComponentSuite, ManagesReverseSimpleContentSize) {
-  tea.addComponent([&](TComponent &test) {
+  tea.render([&](TComponent &test) {
     test.addLine("Hello World").addTitle("Title");
 
     tea.toggleDirection();
@@ -119,34 +119,33 @@ TEST_F(TComponentSuite, ManagesReverseSimpleContentSize) {
 }
 
 TEST_F(TComponentSuite, ManagesMarginContentSize) {
-  tea.addComponent([](TComponent &test) {
+  tea.render([](TComponent &test) {
     test.addLine("Hello World").addTitle("Title").setMargin(2);
 
     auto sz = test.size();
-    // After generation, new size includes content line.
     EXPECT_EQ(sz.x(), 398);
-    EXPECT_EQ(sz.y(), 5);
+    EXPECT_EQ(sz.y(), 7);
   });
 }
 
 TEST_F(TComponentSuite, ManagesReverseMarginContentSize) {
-  tea.addComponent([&](TComponent &test) {
+  tea.render([&](TComponent &test) {
     test.addLine("Hello World").addTitle("Title").setMargin(2);
 
     tea.toggleDirection();
 
     auto sz = test.size();
     // After generation, new size includes content line.
-    EXPECT_EQ(sz.x(), 15);
+    EXPECT_EQ(sz.x(), 17);
     EXPECT_EQ(sz.y(), 198);
   });
 }
 
 TEST_F(TComponentSuite, ManagesBorderSize) {
-  tea.addComponent([&](TComponent &test) {
-    test.addLine("Hello World").addTitle("Title").toggleBorder();
+  tea.render([&](TComponent &test) {
+    test.addLine("Hello World").addTitle("Title").setBorder(0);
 
-    tea.toggleBorder();
+    tea.setBorder(0);
 
     auto sz = test.size();
     // After generation, new size includes content line.
@@ -156,11 +155,11 @@ TEST_F(TComponentSuite, ManagesBorderSize) {
 }
 
 TEST_F(TComponentSuite, ManagesReverseBorderSize) {
-  tea.addComponent([&](TComponent &test) {
-    test.addLine("Hello World").addTitle("Title").toggleBorder();
+  tea.render([&](TComponent &test) {
+    test.addLine("Hello World").addTitle("Title").setBorder(0);
 
     tea.toggleDirection();
-    tea.toggleBorder();
+    tea.setBorder(0);
 
     auto sz = test.size();
     // After generation, new size includes content line.
@@ -170,8 +169,8 @@ TEST_F(TComponentSuite, ManagesReverseBorderSize) {
 }
 
 TEST_F(TComponentSuite, ManagesTitleAndBorderSize) {
-  tea.addComponent([&](TComponent &test) {
-    test.addLine("Hello World").addTitle("Title").toggleBorder();
+  tea.render([&](TComponent &test) {
+    test.addLine("Hello World").addTitle("Title").setBorder(0);
 
     auto sz = test.size();
 
@@ -182,10 +181,10 @@ TEST_F(TComponentSuite, ManagesTitleAndBorderSize) {
 }
 
 TEST_F(TComponentSuite, ManagesNestedChildrenSimpleSize) {
-  tea.addComponent([](TComponent &test) {
+  tea.render([](TComponent &test) {
     test.addLine("Hello World")
         .addTitle("Title")
-        .addComponent([&](TComponent &child) {
+        .render([&](TComponent &child) {
           child.addTitle("Child Title");
           child.addLine("Child Line");
           auto sz = test.size();
@@ -197,14 +196,14 @@ TEST_F(TComponentSuite, ManagesNestedChildrenSimpleSize) {
 }
 
 TEST_F(TComponentSuite, ManagesSiblingChildrenSimpleSize) {
-  tea.addComponent([](TComponent &test) {
+  tea.render([](TComponent &test) {
     test.addLine("Hello World")
         .addTitle("Title")
-        .addComponent([](TComponent &child) {
+        .render([](TComponent &child) {
           child.addTitle("Child Title");
           child.addLine("Child Line");
         })
-        .addComponent([&](TComponent &sibling) {
+        .render([&](TComponent &sibling) {
           sibling.addTitle("Sibling Title");
           sibling.addLine("Sibling Line");
 

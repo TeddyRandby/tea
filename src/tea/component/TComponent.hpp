@@ -1,20 +1,23 @@
 #ifndef TComponent_DEFINED
 #define TComponent_DEFINED
 
+#include "../utils/TVec.hpp"
 #include "TContent.hpp"
-#include "../utils/TVec2.hpp"
+#include "TStyle.hpp"
 #include <assert.h>
+#include <curses.h>
 #include <functional>
+#include <iostream>
 #include <string>
 #include <vector>
-#include <curses.h>
 
 class TComponent {
 
-/**
- * The screen class needs access in order to draw components.
- */
-friend class TScreen;
+  /**
+   * The screen class needs access in order to draw components.
+   */
+  friend class TScreen;
+  friend class TApplication;
 
 protected:
   typedef std::function<void(TComponent &)> Generator;
@@ -30,11 +33,7 @@ protected:
   }
 
 public:
-  /**
-   * When destroyed, recursively destroy children.
-   * This probably already happens, without this code.
-   */
-  ~TComponent() { fSubComponents.clear(); }
+  ~TComponent() {}
 
   /**
    * Content related methods.
@@ -64,7 +63,7 @@ public:
    * Adds a child component with the given generator.
    * Returns a reference to the created component.
    */
-  TComponent &addComponent(const Generator gen) noexcept {
+  TComponent &render(const Generator gen) noexcept {
     fSubComponents.emplace_back(TComponent(this, gen));
     return *this;
   }
@@ -73,19 +72,41 @@ public:
    * A border is drawn around the edge of the whole container.
    * NOTE: Titles are drawn over the top border.
    */
-  bool hasBorder() const noexcept { return fBorder; }
-  TComponent &toggleBorder() noexcept {
-    fBorder = !fBorder;
+  TComponent &setBorder(const int b) noexcept {
+    fStyle.setBorder(b);
+    return *this;
+  }
+
+  TComponent &setBorder(const Border &b) noexcept {
+    fStyle.setBorder(b);
     return *this;
   }
 
   /**
-   * A margin is the space between the edge of the container and the content.
+   * A margin is the space between a component and sibling components.
    * If a border is present, this does NOT include the border.
    */
-  int margin() const noexcept { return fMargin; }
   TComponent &setMargin(const int m) noexcept {
-    fMargin = m;
+    fStyle.setMargin(m);
+    return *this;
+  }
+
+  TComponent &setMargin(const Margin &m) noexcept {
+    fStyle.setMargin(m);
+    return *this;
+  }
+
+  /**
+   * Padding is the space between border and content.
+   * If a border is present, this does NOT include the border.
+   */
+  TComponent &setPadding(const int p) noexcept {
+    fStyle.setPadding(p);
+    return *this;
+  }
+
+  TComponent &setPadding(const Padding &p) noexcept {
+    fStyle.setPadding(p);
     return *this;
   }
 
@@ -107,33 +128,54 @@ public:
    */
   TComponent &setWidth(const float w) noexcept {
     if (w <= 0) {
-      fWidth = 0;
+      fWidthN = 0;
     } else if (w >= 1) {
-      fWidth = 1;
+      fWidthN = 1;
     } else {
-      fWidth = w;
+      fWidthN = w;
     }
     return *this;
   }
 
   TComponent &setHeight(const float h) noexcept {
     if (h <= 0) {
-      fHeight = 0;
+      fHeightN = 0;
     } else if (h >= 1) {
-      fHeight = 1;
+      fHeightN = 1;
     } else {
-      fHeight = h;
+      fHeightN = h;
     }
     return *this;
   }
 
-  TComponent &setWH(const SizeN wh) noexcept {
-    setWidth(wh.x());
-    setHeight(wh.y());
+  TComponent &setWH(const float w, const float h) noexcept {
+    setWidth(w);
+    setHeight(h);
     return *this;
   }
 
-  TComponent &setWH(const float w, const float h) noexcept {
+  /**
+   * Control the relative (to parent) width and height of the component.
+   */
+  TComponent &setWidth(const int w) noexcept {
+    if (w <= 0) {
+      fWidthD = 0;
+    } else {
+      fWidthD = w;
+    }
+    return *this;
+  }
+
+  TComponent &setHeight(const int h) noexcept {
+    if (h <= 0) {
+      fHeightD = 0;
+    } else {
+      fHeightD = h;
+    }
+    return *this;
+  }
+
+  TComponent &setWH(const int w, const int h) noexcept {
     setWidth(w);
     setHeight(h);
     return *this;
@@ -146,11 +188,13 @@ public:
    * Update these components IN PLACE.
    */
   void generate() noexcept {
-    flush();
     fGenerator(*this);
     for (TComponent &c : fSubComponents) {
       c.generate();
     }
+
+    cachedSize = size();
+    cachedOffset = offset();
   }
 
   /**
@@ -165,67 +209,75 @@ public:
    * component.
    */
   virtual SizeD size() const {
-    const auto inner =
-        fParent->size() - fParent->sizePadding();
+    if (cachedSize != SizeD(-1, -1))
+      return cachedSize;
+
+    const auto inner = fParent->size() - fParent->sizeMPB();
     const auto direction = fParent->dir();
 
-    // Both width and height are fixed relative to parent.
-    if (fWidth >= 0 && fHeight >= 0) {
-      return SizeD(fWidth * (float)inner.x(), fHeight * (float)inner.y());
-    }
-
     int w, h;
+
+    // Fill the parent container depending on its direction.
     if (direction == Direction::HORIZONTAL) {
-      /**
-       * height is determined to be inner.y();
-       * width still depends on content and children.
-       * width = max(content + sum children width, title)
-       * There will be wrapping during rendering, but as far
-       * as calculating size goes, we can stop here.
-       */
       h = inner.y();
       w = width();
     } else {
-      /**
-       * width is determined to be inner.x();
-       * height still depends on content and children.
-       * height = max(content + sum children height, title)
-       * There will be wrapping during rendering, but as far
-       * as calculating size goes, we can stop here.
-       */
       w = inner.x();
       h = height();
     }
+
+    // If a relative width or height is specified, override with that.
+    if (fWidthN >= 0) {
+      w = fWidthN * (float)inner.x();
+    }
+
+    if (fHeightN >= 0) {
+      h = fHeightN * (float)inner.y();
+    }
+
+    // If an explicit width or height is specified, override with that.
+    if (fWidthD >= 0) {
+      w = fWidthD;
+    }
+
+    if (fHeightD >= 0) {
+      h = fHeightD;
+    }
+
     return SizeD(w, h);
   }
 
   /**
-   * Return the offset relative to this component where drawing the first child begins.
+   * Return the offset relative to this component where drawing the first child
+   * begins. If the offset has already been calculated, just return the cached
+   * value.
    */
-  SizeD offsetChildren() const {
+  SizeD offset() const {
+    if (cachedOffset != Offset(-1, -1))
+      return cachedOffset;
+
+    auto pad = fStyle.offset();
     int offX, offY;
     if (dir() == Direction::HORIZONTAL) {
-      offX = sizeBody().x() + margin() + hasBorder();
-      offY = margin() + sizeHeader().y();
+      offX = sizeBody().x() + pad.x();
+      offY = sizeHeader().y() + pad.y();
     } else {
-      offX = margin() + hasBorder();  
-      offY = sizeBody().y() + margin() + sizeHeader().y();
+      offX = pad.x();
+      offY = sizeBody().y() + pad.y();
     }
-    return {offX, offY};
+    return Offset(offX, offY);
   }
 
 private:
   /**
-   * A boolean to toggle a border on and off.
+   *
    */
-  bool fBorder = true;
+  SizeD cachedSize = SizeD(-1, -1);
 
   /**
-   * The discrete amount of space (chars) between content and border.
-   * NOTE: If no border is present, then margin spreads into where
-   *    a border would be.
+   *
    */
-  int fMargin = 0;
+  Offset cachedOffset = Offset(-1, -1);
 
   /**
    *
@@ -245,32 +297,34 @@ private:
   Generator fGenerator;
 
   /*
-   * The object that manages teh title and content of hte component.
+   * TContent manages the header and body (text).
    */
   TContent fContent;
 
+  /*
+   * TStyle manages the appearance, border, margin, and padding.
+   */
+  TStyle fStyle;
+
   /**
-   * Width and height are normalized on the interval [0...1]
+   * WidthN and HeightN are normalized on the interval [0...1]
    * A value of -1 implies component will fill its container
    *  responsively. This is the default behavior.
    *
-   * NOTE: Struct SizeN(ormalized) is for getting values.
    * NOTE: This is INCLUSIVE of the border.
    * EX:
    *   |a| === aaa
    */
-  float fWidth = -1;
-  float fHeight = -1;
+  float fWidthN = -1;
+  float fHeightN = -1;
 
   /**
-   * Wipe children and content.
-   * Just generate new children instead of calling children's flush.
+   * WidthD and HeightD are the exact width and height of the
+   * component, in characters.
+   * This has the highest specification priority.
    */
-  TComponent &flush() {
-    fContent.flush();
-    fSubComponents.clear();
-    return *this;
-  }
+  int fWidthD = -1;
+  int fHeightD = -1;
 
   /**
    * Delegated helper getters.
@@ -281,25 +335,26 @@ private:
 
   SizeD sizeTitle() const { return fContent.sizeTitle(); }
 
-  SizeD sizePadding() const {
-    return SizeD(0, 0) + (2 * hasBorder()) + (margin());
-  }
+  /**
+   * Returns the size of margin + border + padding.
+   */
+  SizeD sizeMPB() const { return fStyle.size(); }
 
-  SizeD sizeHeader() const { 
+  SizeD sizeHeader() const {
     if (sizeTitle().y() > 0) {
-     return sizeTitle(); 
+      return sizeTitle() - fStyle.hasBorder();
     } else {
-      return {0, hasBorder() };
+      return {0, fStyle.hasBorder()};
     }
   }
 
   /**
    * Recursively calculate the width that this component
    * and all children components will fill.
-   * NOTE: This does not do any wrapping.
+   * NOTE: This does not account for any wrapping.
    */
   int width() const {
-    int w = sizeBody().x() + sizePadding().x();
+    int w = sizeBody().x() + sizeMPB().x();
     for (auto &c : fSubComponents) {
       w += c.width();
     }
@@ -309,13 +364,12 @@ private:
   /**
    * Recursively calculate the height that this component
    * and all children components will fill.
-   * NOTE: This does not do any wrapping.
+   * NOTE: This does account for any wrapping.
    * NOTE: Because the title is IN the border (if the border is present)
    *  This has to be accounted for in order to not count the border twice.
    */
   int height() const {
-    int h =
-        sizeBody().y() + sizeTitle().y() + sizePadding().y() - hasBorder();
+    int h = sizeBody().y() + sizeHeader().y() + sizeMPB().y();
     for (auto &c : fSubComponents) {
       h += c.height();
     }

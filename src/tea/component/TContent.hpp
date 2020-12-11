@@ -1,7 +1,7 @@
 #ifndef TContent_DEFINED
 #define TContent_DEFINED
 
-#include "../utils/TVec2.hpp"
+#include "../utils/TVec.hpp"
 #include <string>
 
 class TContent {
@@ -28,7 +28,7 @@ public:
    * These will be drawn on the top-border of the box.
    */
   TContent& addTitle(const std::string t) {
-   (fTitles += t) += ' ';
+   (fTitles += t) + ' ';
    return *this;
   }
 

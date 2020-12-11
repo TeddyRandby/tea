@@ -18,19 +18,20 @@ configure_file(TeaConfig.h.in TeaConfig.h)
 
 add_library(screen
       ../src/tea/screen/TScreen.hpp
+      ../src/tea/screen/TApplication.hpp
       ../src/tea/screen/TBorder.cpp
       ../src/tea/screen/THeader.cpp
       ../src/tea/screen/TBody.cpp)
 
 add_library(component
       ../src/tea/component/TComponent.hpp
-      ../src/tea/component/TApplication.hpp
-      ../src/tea/component/TContent.hpp)
+      ../src/tea/component/TContent.hpp
+      ../src/tea/component/TStyle.hpp)
 
 set_target_properties(component PROPERTIES LINKER_LANGUAGE CXX)
 
 add_library(utils
-      ../src/tea/utils/TVec2.hpp)
+      ../src/tea/utils/TVec.hpp)
 
 set_target_properties(utils PROPERTIES LINKER_LANGUAGE CXX)
 
@@ -53,8 +54,9 @@ add_executable(sandbox
 add_executable(tests 
       ../tests/TComponentSuite.cpp
       ../tests/TApplicationSuite.cpp
-      ../tests/TVec2Suite.cpp
-      ../tests/TContentSuite.cpp)
+      ../tests/TVecSuite.cpp
+      ../tests/TContentSuite.cpp
+      ../tests/TStyleSuite.cpp)
 
 target_compile_features(tests 
       PRIVATE

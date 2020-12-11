@@ -1,7 +1,7 @@
 #ifndef TApplication_DEFINED
 #define TApplication_DEFINED
 
-#include "../screen/TScreen.hpp"
+#include "TScreen.hpp"
 
 class TApplication : public TComponent {
 public:
@@ -10,6 +10,7 @@ public:
    * Therefore, an application's parent is itself.
    */
   TApplication(Generator gen = [](auto &) {}) : TComponent(this, gen){};
+  TApplication(const TApplication &app) : TComponent(this, app.fGenerator) {}
 
   ~TApplication(){};
 
@@ -48,14 +49,16 @@ public:
   }
 
 private:
+  TScreen fScreen;
+
   void draw() {
     clear();
+    this->TComponent::operator=(TComponent(this, fGenerator));
     generate();
     fScreen.resize();
     fScreen.draw(0, 0, *this);
     refresh();
   }
-
-  TScreen fScreen;};
+};
 
 #endif
