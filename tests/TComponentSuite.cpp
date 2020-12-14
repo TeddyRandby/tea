@@ -53,7 +53,7 @@ TEST_F(TComponentSuite, GeneratesContent) {
     // After generating, the line appears in the content.
     test.addLine("Hello World").addTitle("Title");
     EXPECT_EQ(test.content(), "Hello World\n");
-    EXPECT_EQ(test.title(), "Title ");
+    EXPECT_EQ(test.title(), "Title");
   });
 }
 
@@ -148,7 +148,6 @@ TEST_F(TComponentSuite, ManagesBorderSize) {
     tea.setBorder(0);
 
     auto sz = test.size();
-    // After generation, new size includes content line.
     EXPECT_EQ(sz.x(), 400);
     EXPECT_EQ(sz.y(), 2);
   });
@@ -212,6 +211,17 @@ TEST_F(TComponentSuite, ManagesSiblingChildrenSimpleSize) {
           EXPECT_EQ(sz.x(), 398);
           EXPECT_EQ(sz.y(), 9);
         });
+  });
+}
+
+TEST_F(TComponentSuite, InheritsStylesFromParent) {
+  tea.render([](TComponent &test) {
+    test.setPadding(3);
+    test.setBorder(0);
+    test.render([](TComponent &child){
+      EXPECT_EQ(child.getPadding(), Padding(3,3,3,3));
+      EXPECT_EQ(child.getBorder(), Border(0,0,0,0));
+    });
   });
 }
 

@@ -27,7 +27,7 @@ protected:
   /**
    * A TComponent cannot have a nullptr for a parent.
    */
-  TComponent(TComponent *p, Generator gen) : fGenerator(gen) {
+  TComponent(TComponent *p, Generator gen, TStyle styles=TStyle()) : fGenerator(gen), fStyle(styles) {
     assert(p);
     fParent = p;
   }
@@ -64,7 +64,7 @@ public:
    * Returns a reference to the created component.
    */
   TComponent &render(const Generator gen) noexcept {
-    fSubComponents.emplace_back(TComponent(this, gen));
+    fSubComponents.emplace_back(TComponent(this, gen, fStyle));
     return *this;
   }
 
@@ -76,10 +76,12 @@ public:
     fStyle.setBorder(b);
     return *this;
   }
-
   TComponent &setBorder(const Border &b) noexcept {
     fStyle.setBorder(b);
     return *this;
+  }
+  Border getBorder() const noexcept {
+    return fStyle.getBorder();
   }
 
   /**
@@ -95,7 +97,9 @@ public:
     fStyle.setMargin(m);
     return *this;
   }
-
+  Margin getMargin() const noexcept {
+    return fStyle.getMargin();
+  }
   /**
    * Padding is the space between border and content.
    * If a border is present, this does NOT include the border.
@@ -108,6 +112,9 @@ public:
   TComponent &setPadding(const Padding &p) noexcept {
     fStyle.setPadding(p);
     return *this;
+  }
+  Padding getPadding() const noexcept {
+    return fStyle.getPadding();
   }
 
   /**
@@ -207,12 +214,13 @@ public:
    * This means that the other val is deterministic.
    * NOTE: This method is virtual because it is overridden by the application
    * component.
+   * This needs to shrink margin and padding if necessary
    */
   virtual SizeD size() const {
     if (cachedSize != SizeD(-1, -1))
       return cachedSize;
 
-    const auto inner = fParent->size() - fParent->sizeMPB();
+    const auto inner = fParent->inner();
     const auto direction = fParent->dir();
 
     int w, h;
@@ -243,8 +251,30 @@ public:
     if (fHeightD >= 0) {
       h = fHeightD;
     }
+     
+    const SizeD min = minimumSize();
+    return SizeD(std::max<int>(w, min.x()), std::max<int>(h, min.y()));
+  }
 
-    return SizeD(w, h);
+  /**
+   * Minimum size excludes padding and margin.
+   */
+  SizeD minimumSize() const {
+    SizeD subSize = {0,0};
+    for (auto &c : fSubComponents) {
+      subSize += c.minimumSize();
+    }
+    int x,y;
+    x = std::max<int>({subSize.x(), sizeBody().x(), sizeHeader().x()});
+    y = std::max<int>({subSize.y(), sizeBody().y(), sizeHeader().y()});
+    return SizeD(x,y) + fStyle.size();
+  }
+
+  /**
+   * Size of container remaining to draw children.
+   */
+  SizeD inner() const {
+    return size() - sizeMPB() - sizeBody();
   }
 
   /**

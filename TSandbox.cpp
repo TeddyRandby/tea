@@ -10,6 +10,7 @@ typedef struct Proportional {
       c.setWH(fW, fH);
       c.addTitle("Proportional");
       c.setBorder(1);
+      c.setPadding(0);
   } 
 
   private:
@@ -20,7 +21,7 @@ typedef struct Proportional {
 
 void borderless(TComponent &c) {
   c.addTitle("Borderless");
-  c.setBorder(0); 
+  c.setBorder(1); 
 }
 
 void bigMargin(TComponent &c) {
@@ -35,8 +36,10 @@ int main(int argc, char *argv[]) {
   auto tea = TApplication([](TComponent &app) {
     app.addLine("Press Esc to quit");
     app.addTitle(" Application");
-    app.toggleDirection();
     app.setPadding(3);
+    app.toggleDirection();
+    app.setMargin(0);
+    app.setBorder(2);
 
     // Callabale structs...
     Proportional left = Proportional(.2,.5);

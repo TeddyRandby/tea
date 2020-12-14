@@ -57,6 +57,8 @@ private:
     generate();
     fScreen.resize();
     fScreen.draw(0, 0, *this);
+    // Hack to draw the border of the final app on over after sub components are drawn.
+    fScreen.drawBorder(0,0,*this);
     refresh();
   }
 };

@@ -15,6 +15,8 @@ public:
 
   TVec2 operator+(T delta) const { return {fX + delta, fY + delta}; }
 
+  TVec2 operator*(T delta) const { return {fX * delta, fY * delta}; }
+
   TVec2& operator=(const TVec2<T> &v) {
     this->fX = v.x();
     this->fY = v.y();
@@ -26,12 +28,19 @@ public:
     fX -= delta.x();
     fY -= delta.y();
     return *this;
-  };
+  }
 
   TVec2 operator+(TVec2<T> delta) const { return {fX + delta.x(), fY + delta.y()}; }
   TVec2 operator+=(TVec2<T> delta) { 
     fX += delta.x();
     fY += delta.y();
+    return *this;
+  };
+
+  TVec2 operator*(TVec2<T> delta) const { return {fX * delta.x(), fY * delta.y()}; }
+  TVec2 operator*=(TVec2<T> delta) { 
+    fX *= delta.x();
+    fY *= delta.y();
     return *this;
   };
 

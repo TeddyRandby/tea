@@ -2,33 +2,53 @@
 #define TBorder_DEFINED
 
 #include "TScreen.hpp"
-#include <iostream>
 
 void TScreen::drawBorder(const int x, const int y, const TComponent &c) {
 
-  if (c.fStyle.hasBorder()) {
-    const SizeD w = c.size() - 1;
+    const Border b = c.fStyle.getBorder();
+
+    SizeD w = c.size();
+
     const Margin m = c.fStyle.getMargin();
+
     const int startX = x + m.l();
     const int startY = y + m.t();
     const int endX = x + w.x() - m.r();
     const int endY = y + w.y() - m.b();
 
-    for (int i = startX; i < endX; ++i) {
-      addPixel(i, startY, ACS_HLINE);
-      addPixel(i, endY, ACS_HLINE);
+    for (int i = 0; i < b.t(); i++) {
+      for (int j = startX + i; j < endX - i; j++)
+        addPixel(j, startY + i, ACS_HLINE);
     }
 
-    for (int i = startY; i < endY; ++i) {
-      addPixel(startX, i, ACS_VLINE);
-      addPixel(endX, i, ACS_VLINE);
+    for (int i = 0; i < b.b(); i++) {
+      for (int j = startX + i; j < endX - i; j++)
+        addPixel(j, endY - i, ACS_HLINE);
     }
 
-    addPixel(startX, startY , ACS_ULCORNER);
-    addPixel(endX, startY, ACS_URCORNER);
-    addPixel(startX, endY , ACS_LLCORNER);
-    addPixel(endX, endY , ACS_LRCORNER);
-  };
+    for (int i = 0; i < b.l(); i++) {
+      for (int j = startY + i; j < endY - i; j++)
+        addPixel(startX + i, j, ACS_VLINE);
+    }
+
+    for (int i = 0; i < b.r(); i++) {
+      for (int j = startY + i; j < endY - i; j++)
+        addPixel(endX - i, j, ACS_VLINE);
+    }
+
+    for (int i = 0; i < b.l(); ++i) {
+      if (i <= b.t())
+        addPixel(startX + i, startY + i , ACS_ULCORNER);
+      if (i <= b.b())
+        addPixel(startX + i, endY - i , ACS_LLCORNER);
+    }
+
+    for (int i = 0; i < b.r(); ++i) {
+      if (i <= b.t())
+        addPixel(endX - i, startY + i, ACS_URCORNER);
+      if (i <= b.b())
+        addPixel(endX - i, endY - i , ACS_LRCORNER);
+    }
 };
 
 #endif

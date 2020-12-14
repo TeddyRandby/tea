@@ -3,7 +3,6 @@
 
 #include <curses.h>
 #include "../component/TComponent.hpp"
-#include <iostream>
 
 class TScreen {
 public:
@@ -22,8 +21,11 @@ public:
     drawBorder(x, y, c);
     drawHeader(x, y, c);
     drawBody(x, y, c);
+    // Rather than trying to shrink or disappear components, just find their minimum size.
+    // Padding and margin should be able to shrink.
 
     SizeD offset = c.offset() + SizeD{x,y};
+//    SizeD space = c.size()
     for (auto &sc : c.fSubComponents) {
       draw(offset.x(), offset.y(), sc);
       if (c.dir() == TComponent::HORIZONTAL) {
@@ -37,6 +39,8 @@ public:
 
   void resize() {
     getmaxyx(stdscr, fRows, fCols);
+    fRows--;
+    fCols--;
   }
 
   void setSize(const int cols, const int rows) {
@@ -50,6 +54,12 @@ public:
       mvaddch(y,x,ch); 
   }
 
+  void drawBorder(const int x, const int y, const TComponent& c);
+
+  void drawBody(const int x, const int y, const TComponent& c);
+
+  void drawHeader(const int x, const int y, const TComponent& c);
+
 private:
 
   /**
@@ -59,11 +69,6 @@ private:
   int fCols = 0;
   int fRows = 0;
 
-  void drawBorder(const int x, const int y, const TComponent& c);
-
-  void drawBody(const int x, const int y, const TComponent& c);
-
-  void drawHeader(const int x, const int y, const TComponent& c);
 
 
 };

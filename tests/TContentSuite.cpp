@@ -55,7 +55,7 @@ TEST_F(TContentSuite, ManagesTitles) {
    tea.addTitle("Hello World");
    tea.addTitle(" World");
 
-   EXPECT_EQ(tea.title(), "Hello World  World ");
+   EXPECT_EQ(tea.title(), "Hello World World");
 
    tea.flush();
 
@@ -69,7 +69,7 @@ TEST_F(TContentSuite, ManagesSize) {
    tea.addLine("Hello World");
    tea.addLine("Test \nWorld");
 
-   EXPECT_EQ(tea.sizeTitle().x(), 19);
+   EXPECT_EQ(tea.sizeTitle().x(), 17);
    EXPECT_EQ(tea.sizeTitle().y(), 1);
 
    EXPECT_EQ(tea.sizeContent().x(), 11);

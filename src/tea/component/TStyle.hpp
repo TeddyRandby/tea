@@ -22,6 +22,9 @@ public:
     Border getBorder() const {
         return fBorder;
     }
+    SizeD sizeBorder() const {
+        return SizeD(fBorder.l() + fBorder.r(), fBorder.t() + fBorder.b());
+    }
 
     TStyle& setPadding(const Padding &p) {
         fPadding = p;        
@@ -36,6 +39,9 @@ public:
     Padding getPadding() const {
         return fPadding;
     }
+    SizeD sizePadding() const {
+        return SizeD(fPadding.l() + fPadding.r(), fPadding.t() + fPadding.b());
+    }
 
     TStyle& setMargin(const Margin &m) {
         fMargin = m; 
@@ -49,6 +55,9 @@ public:
     }
     Margin getMargin() const {
         return fMargin;
+    }
+    SizeD sizeMargin() const {
+        return SizeD(fMargin.l() + fMargin.r(), fMargin.t() + fMargin.b());
     }
 
     /**

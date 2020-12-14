@@ -7,14 +7,23 @@ void TScreen::drawBody(const int x, const int y, const TComponent &c) {
   const int startX = x + c.fStyle.offset().x();
   const int startY = y + c.sizeHeader().y() + c.fStyle.offset().y();
 
-  const SizeD w = c.size();
+  SizeD w = c.size();
+  SizeD min = c.minimumSize();
+  w = SizeD(std::max<int>(w.x(), min.x()), std::max<int>(w.y(), min.y()));
 
   int locX, locY;
   locX = startX;
   locY = startY;
 
-  const int capX = startX + w.x();
-  const int capY = startY + w.y();
+  const Border b = c.fStyle.getBorder();
+  const Margin m = c.fStyle.getMargin();
+
+  const int capX = x + w.x() - b.r() - m.r();
+  const int capY = x + w.y() - b.r() - m.r();
+
+  if (startX >= capX || startY >= capY) {
+    return;
+  }
 
   for (char ch : c.content()) {
 
