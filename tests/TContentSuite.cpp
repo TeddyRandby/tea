@@ -36,70 +36,68 @@ class TContentSuite: public ::testing::Test {
 };
 
 TEST_F(TContentSuite, Initializes) {
-   EXPECT_EQ(tea.content(), "");
-   EXPECT_EQ(tea.title(), "");
+   EXPECT_EQ(tea.header(), "");
+   EXPECT_EQ(tea.body(), "");
+   EXPECT_EQ(tea.footer(), "");
 }
 
-TEST_F(TContentSuite, ManagesLines) {
+TEST_F(TContentSuite, ManagesBody) {
    tea.addLine("Hello\nWorld");
    tea.addLine("World");
 
-   EXPECT_EQ(tea.content(), "Hello\nWorld\nWorld\n");
+   EXPECT_EQ(tea.body(), "Hello\nWorld\nWorld\n");
 
-   tea.flush();
-
-   EXPECT_EQ(tea.content(), "");
 }
 
-TEST_F(TContentSuite, ManagesTitles) {
-   tea.addTitle("Hello World");
-   tea.addTitle(" World");
+TEST_F(TContentSuite, ManagesHeader) {
+   tea.addHeader("Hello World");
+   tea.addHeader(" World");
+   EXPECT_EQ(tea.header(), "Hello World World");
 
-   EXPECT_EQ(tea.title(), "Hello World World");
+}
 
-   tea.flush();
+TEST_F(TContentSuite, ManagesFooter) {
+   tea.addFooter("Hello World");
+   tea.addFooter(" World");
 
-   EXPECT_EQ(tea.title(), "");
+   EXPECT_EQ(tea.footer(), "Hello World World");
+
 }
 
 TEST_F(TContentSuite, ManagesSize) {
-   tea.addTitle("Hello World");
-   tea.addTitle(" World");
+   tea.addHeader("Hello World");
+   tea.addHeader(" World");
    
    tea.addLine("Hello World");
    tea.addLine("Test \nWorld");
 
-   EXPECT_EQ(tea.sizeTitle().x(), 17);
-   EXPECT_EQ(tea.sizeTitle().y(), 1);
+   tea.addFooter("Hi Universe");
 
-   EXPECT_EQ(tea.sizeContent().x(), 11);
-   EXPECT_EQ(tea.sizeContent().y(), 3);
+   EXPECT_EQ(tea.sizeHeader().x(), 17);
+   EXPECT_EQ(tea.sizeHeader().y(), 1);
 
-   tea.flush();
+   EXPECT_EQ(tea.sizeBody().x(), 11);
+   EXPECT_EQ(tea.sizeBody().y(), 3);
 
-   EXPECT_EQ(tea.sizeTitle().x(), 0);
-   EXPECT_EQ(tea.sizeTitle().y(), 0);
-   EXPECT_EQ(tea.sizeContent().x(), 0);
-   EXPECT_EQ(tea.sizeContent().y(), 0);
+   EXPECT_EQ(tea.sizeFooter().x(), 11);
+   EXPECT_EQ(tea.sizeFooter().y(), 1);
+
+   EXPECT_EQ(tea.size().x(), 17);
+   EXPECT_EQ(tea.size().y(), 5);
 }
 
 TEST_F(TContentSuite, ManagesContentWrapping) {
    tea.addLine("Hello World");
    tea.addLine("Test \nWorld");
 
-   EXPECT_EQ(tea.sizeContent(5).x(), 5);
-   EXPECT_EQ(tea.sizeContent(5).y(), 7);
+   EXPECT_EQ(tea.sizeBody(5).x(), 5);
+   EXPECT_EQ(tea.sizeBody(5).y(), 7);
 
-   EXPECT_EQ(tea.sizeContent(100).x(), 11);
-   EXPECT_EQ(tea.sizeContent(100).y(), 3);
+   EXPECT_EQ(tea.sizeBody(100).x(), 11);
+   EXPECT_EQ(tea.sizeBody(100).y(), 3);
 
-   EXPECT_EQ(tea.sizeContent(1).x(), 1);
-   EXPECT_EQ(tea.sizeContent(1).y(), 24);
-
-   tea.flush();
-
-   EXPECT_EQ(tea.sizeContent().x(), 0);
-   EXPECT_EQ(tea.sizeContent().y(), 0);
+   EXPECT_EQ(tea.sizeBody(1).x(), 1);
+   EXPECT_EQ(tea.sizeBody(1).y(), 24);
 }
 
 #endif

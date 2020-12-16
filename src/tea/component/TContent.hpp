@@ -7,10 +7,6 @@
 class TContent {
 
 public:
-
-  typedef std::string Lines;
-  typedef std::string Titles;
-
   TContent() {}
   ~TContent() {}
 
@@ -18,8 +14,8 @@ public:
    * Lines added automatically have '/n' attached.
    * These will be drawn within the box.
    */
-  TContent& addLine(const std::string l) {
-    (fLines += l) += '\n';
+  TContent &addLine(const std::string &l) {
+    (fBody += l) += '\n';
     return *this;
   }
 
@@ -27,53 +23,51 @@ public:
    * Lines added automatically have ' ' attached.
    * These will be drawn on the top-border of the box.
    */
-  TContent& addTitle(const std::string t) {
-   (fTitles += t) + ' ';
-   return *this;
-  }
-
-  /**
-   * Reset the data.
-   */
-   TContent& flush() {
-    fLines = "";
-    fTitles = "";
+  TContent &addHeader(const std::string &h) {
+    (fHeader += h) + ' ';
     return *this;
-   }
+  }
 
-  /**
-   * Return the raw string content.
-   * NOTE: The string is copied, for now.
-   */
-  Lines content() const {
-    return fLines;
+  TContent &addFooter(const std::string &f) {
+    (fFooter += f) + ' ';
+    return *this;
   }
 
   /**
    * Return the raw string content.
    * NOTE: The string is copied, for now.
    */
-  Titles title() const {
-    return fTitles;
-  }
+  std::string header() const { return fHeader; }
+
+  std::string body() const { return fBody; }
+
+  std::string footer() const { return fFooter; }
 
   /**
-   * Calculate the size of the fContent string
+   * Calculate the size of the a string field.
+   * Size (widest line, num lines)
    */
-  SizeD sizeContent(const int w=-11) const {
-    return sizeString(fLines, w);
-  }
+  SizeD sizeHeader(const int w = -1) const { return sizeString(fHeader, w); }
 
-  /**
-   * Calculate the size of the fContent string
-   */
-  SizeD sizeTitle(const int w=-1) const {
-    return sizeString(fTitles, w);
+  SizeD sizeBody(const int w = -1) const { return sizeString(fBody, w); }
+
+  SizeD sizeFooter(const int w = -1) const { return sizeString(fFooter, w); }
+
+  SizeD size(const int w = -1) const {
+    const SizeD h = sizeHeader(w);
+    const SizeD b = sizeBody(w);
+    const SizeD f = sizeFooter(w);
+
+    int x,y;
+    x = std::max<int>({h.x(), b.x(), f.x()});
+    y = h.y() + b.y() + f.y();
+    return SizeD{x,y};
   }
 
 private:
-  Titles fTitles = "";
-  Lines fLines = "";
+  std::string fHeader = "";
+  std::string fBody = "";
+  std::string fFooter = "";
 
   /**
    * Calculate the size of the fContent string
@@ -83,38 +77,35 @@ private:
    * NOTE: Line length exclues the \n char.
    * NOTE: Giving a maxw turns ON wrapping.
    */
-  SizeD sizeString(const std::string &str, const int maxw=-1) const {
+  SizeD sizeString(const std::string &str, const int maxw = -1) const {
     int longest = -1;
     int length = 0;
     int count = 0;
 
     for (char c : str) {
 
-        if (c == '\n') {
-            longest = std::max<int>(length, longest);
-            length = 0;
-            count++;
-        } else {
-            length++;
-        }
+      if (c == '\n') {
+        longest = std::max<int>(length, longest);
+        length = 0;
+        count++;
+      } else {
+        length++;
+      }
 
-        // Wrap if the line is maxed out.
-        if (maxw != -1 && length == maxw) {
-            longest = std::max<int>(length, longest);
-            length = 0;
-            count++;
-        }
+      // Wrap if the line is maxed out.
+      if (maxw != -1 && length == maxw) {
+        longest = std::max<int>(length, longest);
+        length = 0;
+        count++;
+      }
     }
 
     if (longest == -1)
-        longest = length;
+      longest = length;
     if (count == 0 && str.size() > 0)
-        count++;
-    
+      count++;
 
     return SizeD(longest, count);
-  }
-
-};
+  }};
 
 #endif

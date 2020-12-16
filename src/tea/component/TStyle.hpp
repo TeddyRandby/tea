@@ -6,8 +6,23 @@
 class TStyle {
 
 public:
+    enum Direction { VERTICAL, HORIZONTAL };
     TStyle() {};
     ~TStyle() {};
+
+    TStyle& horizontal() {
+        fDirection = Direction::HORIZONTAL;        
+        return *this;
+    }
+
+    TStyle& vertical() {
+        fDirection = Direction::VERTICAL;        
+        return *this;
+    }
+
+    Direction direction() const {
+        return fDirection;
+    }
 
     TStyle& setBorder(const Border &b) {
         fBorder = b;        
@@ -77,20 +92,26 @@ public:
     }
 
 private:
+    // TVec4 {top, bottom, left, right}
     /**
      * A Border is drawn outlining the component.
      */
-    Border fBorder = Border(1,1,1,1);
+    Border fBorder = Border{1,1,1,1};
 
     /**
      * Padding is the space between a component's content and its border.  
      */
-    Padding fPadding = Padding(0,0,0,0);
+    Padding fPadding = Padding{0,0,0,0};
 
     /**
      * Margin is the space between components.
      */
-    Margin fMargin = Margin(0,0,0,0);
+    Margin fMargin = Margin{0,0,0,0};
+
+    /**
+     *
+     */
+    Direction fDirection = Direction::VERTICAL;
 
 };
 

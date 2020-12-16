@@ -7,7 +7,6 @@
 #include <assert.h>
 #include <curses.h>
 #include <functional>
-#include <iostream>
 #include <string>
 #include <vector>
 
@@ -15,19 +14,20 @@ class TComponent {
 
   /**
    * The screen class needs access in order to draw components.
+   * TApplicatoin class needs access in order to re-initialize its base class.
    */
   friend class TScreen;
   friend class TApplication;
 
 protected:
   typedef std::function<void(TComponent &)> Generator;
-  enum Direction { VERTICAL, HORIZONTAL };
   typedef std::vector<TComponent> SubComponents;
 
   /**
    * A TComponent cannot have a nullptr for a parent.
    */
-  TComponent(TComponent *p, Generator gen, TStyle styles=TStyle()) : fGenerator(gen), fStyle(styles) {
+  TComponent(TComponent *p, Generator gen, TStyle styles = TStyle())
+      : fGenerator(gen), fStyle(styles) {
     assert(p);
     fParent = p;
   }
@@ -43,19 +43,29 @@ public:
    *
    * Content is within the border and margin of a component.
    */
-  std::string content() const noexcept { return fContent.content(); }
+  std::string body() const noexcept { return fContent.body(); }
   TComponent &addLine(std::string l = "") noexcept {
     fContent.addLine(l);
     return *this;
   }
 
   /**
-   * A Title is outside the margin of a component,
+   * A Header is a single line of text outside the padding of a component,
    *  and within the border (if present. )
    */
-  std::string title() const noexcept { return fContent.title(); }
-  TComponent &addTitle(std::string t = "") noexcept {
-    fContent.addTitle(t);
+  std::string header() const noexcept { return fContent.header(); }
+  TComponent &addHeader(std::string t = "") noexcept {
+    fContent.addHeader(t);
+    return *this;
+  }
+
+  /**
+   * A Footer is a single line of text outside the padding of a component,
+   *  and within the border (if present. )
+   */
+  std::string footer() const noexcept { return fContent.footer(); }
+  TComponent &addFooter(std::string t = "") noexcept {
+    fContent.addFooter(t);
     return *this;
   }
 
@@ -80,9 +90,7 @@ public:
     fStyle.setBorder(b);
     return *this;
   }
-  Border getBorder() const noexcept {
-    return fStyle.getBorder();
-  }
+  Border getBorder() const noexcept { return fStyle.getBorder(); }
 
   /**
    * A margin is the space between a component and sibling components.
@@ -97,9 +105,7 @@ public:
     fStyle.setMargin(m);
     return *this;
   }
-  Margin getMargin() const noexcept {
-    return fStyle.getMargin();
-  }
+  Margin getMargin() const noexcept { return fStyle.getMargin(); }
   /**
    * Padding is the space between border and content.
    * If a border is present, this does NOT include the border.
@@ -113,20 +119,18 @@ public:
     fStyle.setPadding(p);
     return *this;
   }
-  Padding getPadding() const noexcept {
-    return fStyle.getPadding();
-  }
+  Padding getPadding() const noexcept { return fStyle.getPadding(); }
 
   /**
    * Direction controls the way content and subComponents are stacked.
    */
-  Direction dir() const noexcept { return fDir; }
-  TComponent &toggleDirection() noexcept {
-    if (fDir == Direction::HORIZONTAL) {
-      fDir = Direction::VERTICAL;
-    } else {
-      fDir = Direction::HORIZONTAL;
-    }
+  TStyle::Direction dir() const noexcept { return fStyle.direction(); }
+  TComponent &horizontal() noexcept {
+    fStyle.horizontal();
+    return *this;
+  }
+  TComponent &vertical() noexcept {
+    fStyle.vertical();
     return *this;
   }
 
@@ -226,7 +230,7 @@ public:
     int w, h;
 
     // Fill the parent container depending on its direction.
-    if (direction == Direction::HORIZONTAL) {
+    if (direction == TStyle::Direction::HORIZONTAL) {
       h = inner.y();
       w = width();
     } else {
@@ -251,31 +255,35 @@ public:
     if (fHeightD >= 0) {
       h = fHeightD;
     }
-     
+
     const SizeD min = minimumSize();
     return SizeD(std::max<int>(w, min.x()), std::max<int>(h, min.y()));
   }
 
   /**
-   * Minimum size excludes padding and margin.
+   * Minimum size accounts for zero stretching.
    */
   SizeD minimumSize() const {
-    SizeD subSize = {0,0};
+    SizeD subSize = {0, 0};
     for (auto &c : fSubComponents) {
       subSize += c.minimumSize();
     }
-    int x,y;
-    x = std::max<int>({subSize.x(), sizeBody().x(), sizeHeader().x()});
-    y = std::max<int>({subSize.y(), sizeBody().y(), sizeHeader().y()});
-    return SizeD(x,y) + fStyle.size();
+    SizeD c = fContent.size();
+    int x, y;
+    if (dir() == TStyle::Direction::HORIZONTAL) {
+      x = subSize.x() + c.x();
+      y = std::max<int>(subSize.y(), c.y());
+    } else {
+      x = std::max<int>(subSize.x(), c.x());
+      y = subSize.y() + c.y();
+    }
+    return SizeD(x, y) + fStyle.size() - accountForDoubleCount();
   }
 
   /**
    * Size of container remaining to draw children.
    */
-  SizeD inner() const {
-    return size() - sizeMPB() - sizeBody();
-  }
+  SizeD inner() const { return size() - fStyle.size(); }
 
   /**
    * Return the offset relative to this component where drawing the first child
@@ -288,12 +296,12 @@ public:
 
     auto pad = fStyle.offset();
     int offX, offY;
-    if (dir() == Direction::HORIZONTAL) {
-      offX = sizeBody().x() + pad.x();
-      offY = sizeHeader().y() + pad.y();
+    if (dir() == TStyle::Direction::HORIZONTAL) {
+      offX = fContent.sizeBody().x() + pad.x();
+      offY = fContent.sizeHeader().y() + pad.y() - accountForDoubleCount().y();
     } else {
       offX = pad.x();
-      offY = sizeBody().y() + pad.y();
+      offY = fContent.sizeBody().y() + pad.y();
     }
     return Offset(offX, offY);
   }
@@ -313,7 +321,6 @@ private:
    *
    */
   TComponent *fParent = nullptr;
-  Direction fDir = Direction::VERTICAL;
   SubComponents fSubComponents = {};
 
   /**
@@ -356,25 +363,12 @@ private:
   int fWidthD = -1;
   int fHeightD = -1;
 
-  /**
-   * Delegated helper getters.
-   * ContentSize here INCLUDES border and margin.
-   * Returns the size of the content given a width.
-   */
-  SizeD sizeBody() const { return fContent.sizeContent(); }
-
-  SizeD sizeTitle() const { return fContent.sizeTitle(); }
-
-  /**
-   * Returns the size of margin + border + padding.
-   */
-  SizeD sizeMPB() const { return fStyle.size(); }
-
-  SizeD sizeHeader() const {
-    if (sizeTitle().y() > 0) {
-      return sizeTitle() - fStyle.hasBorder();
+  SizeD accountForDoubleCount() const {
+    int y = fContent.sizeHeader().y() + fContent.sizeFooter().y();
+    if (y > 0) {
+      return SizeD{0, fStyle.hasBorder()};
     } else {
-      return {0, fStyle.hasBorder()};
+      return SizeD{0, 0};
     }
   }
 
@@ -384,22 +378,28 @@ private:
    * NOTE: This does not account for any wrapping.
    */
   int width() const {
-    int w = sizeBody().x() + sizeMPB().x();
+    int w = fContent.sizeBody().x() + fStyle.size().x();
     for (auto &c : fSubComponents) {
       w += c.width();
     }
-    return std::max<int>(sizeTitle().x(), w);
+    int hw = fContent.sizeHeader().x() + fStyle.size().x();
+    int fw = fContent.sizeFooter().x() + fStyle.size().x();
+    return std::max<int>({hw, fw, w});
   }
 
   /**
    * Recursively calculate the height that this component
    * and all children components will fill.
    * NOTE: This does account for any wrapping.
-   * NOTE: Because the title is IN the border (if the border is present)
-   *  This has to be accounted for in order to not count the border twice.
+   * NOTE: Because the title and footer is IN the border (if the border is
+   * present) This has to be accounted for in order to not count the border
+   * twice.
    */
   int height() const {
-    int h = sizeBody().y() + sizeHeader().y() + sizeMPB().y();
+    int y = fContent.size().y() - accountForDoubleCount().y();
+    int b = fStyle.size().y();
+    // DOn't count the same line twice.
+    int h = y + b;
     for (auto &c : fSubComponents) {
       h += c.height();
     }

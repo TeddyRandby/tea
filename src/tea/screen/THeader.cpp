@@ -21,7 +21,7 @@ void TScreen::drawHeader(const int x, const int y, const TComponent &c) {
     return;
   }
 
-  for (const char ch : c.title()) {
+  for (const char ch : c.header()) {
 
     if (locX > capX || ch == '\n') {
       break;

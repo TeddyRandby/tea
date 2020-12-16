@@ -17,22 +17,22 @@ void TScreen::drawBorder(const int x, const int y, const TComponent &c) {
     const int endY = y + w.y() - m.b();
 
     for (int i = 0; i < b.t(); i++) {
-      for (int j = startX + i; j < endX - i; j++)
+      for (int j = startX + i; j < endX; j++)
         addPixel(j, startY + i, ACS_HLINE);
     }
 
     for (int i = 0; i < b.b(); i++) {
-      for (int j = startX + i; j < endX - i; j++)
+      for (int j = startX + i; j < endX; j++)
         addPixel(j, endY - i, ACS_HLINE);
     }
 
     for (int i = 0; i < b.l(); i++) {
-      for (int j = startY + i; j < endY - i; j++)
+      for (int j = startY + i; j < endY; j++)
         addPixel(startX + i, j, ACS_VLINE);
     }
 
     for (int i = 0; i < b.r(); i++) {
-      for (int j = startY + i; j < endY - i; j++)
+      for (int j = startY + i; j < endY; j++)
         addPixel(endX - i, j, ACS_VLINE);
     }
 

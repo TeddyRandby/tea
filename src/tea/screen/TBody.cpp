@@ -5,11 +5,10 @@
 
 void TScreen::drawBody(const int x, const int y, const TComponent &c) {
   const int startX = x + c.fStyle.offset().x();
-  const int startY = y + c.sizeHeader().y() + c.fStyle.offset().y();
+  // Below code counts same line twice
+  const int startY = y + c.fStyle.offset().y();
 
   SizeD w = c.size();
-  SizeD min = c.minimumSize();
-  w = SizeD(std::max<int>(w.x(), min.x()), std::max<int>(w.y(), min.y()));
 
   int locX, locY;
   locX = startX;
@@ -19,13 +18,13 @@ void TScreen::drawBody(const int x, const int y, const TComponent &c) {
   const Margin m = c.fStyle.getMargin();
 
   const int capX = x + w.x() - b.r() - m.r();
-  const int capY = x + w.y() - b.r() - m.r();
+  const int capY = y + w.y() - b.b() - m.r();
 
   if (startX >= capX || startY >= capY) {
     return;
   }
 
-  for (char ch : c.content()) {
+  for (char ch : c.body()) {
 
     if (locX > capX) {
       locX = startX;

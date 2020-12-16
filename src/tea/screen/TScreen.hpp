@@ -28,7 +28,7 @@ public:
 //    SizeD space = c.size()
     for (auto &sc : c.fSubComponents) {
       draw(offset.x(), offset.y(), sc);
-      if (c.dir() == TComponent::HORIZONTAL) {
+      if (c.dir() == TStyle::Direction::HORIZONTAL) {
         offset += {sc.size().x(),0};
       } else {
         offset += {0, sc.size().y()};
