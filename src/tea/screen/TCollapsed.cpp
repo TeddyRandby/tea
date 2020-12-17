@@ -1,9 +1,9 @@
-#ifndef THeader_DEFINED
-#define THeader_DEFINED
+#ifndef TCollapsed_DEFINED
+#define TCollapsed_DEFINED
 
 #include "TScreen.hpp"
 
-void TScreen::drawHeader(const int x, const int y, const TComponent &c) const {
+void TScreen::drawCollapsed(const int x, const int y, const TComponent &c) const {
   const Margin m = c.fStyle.getMargin();
   const Border b = c.fStyle.getBorder();
   const int startX = x + m.l();
@@ -21,8 +21,11 @@ void TScreen::drawHeader(const int x, const int y, const TComponent &c) const {
     return;
   }
 
-  for (const char ch : c.header()) {
+  for (int i = startX; i < capX; i++) {
+    addPixel(i,locY,ACS_HLINE);    
+  }
 
+  for (const char ch : c.header()) {
     if (locX > capX || ch == '\n') {
       break;
     } else if(ch == ' ') {
@@ -31,7 +34,6 @@ void TScreen::drawHeader(const int x, const int y, const TComponent &c) const {
       addPixel(locX,locY,ch);
       locX++;
     }
-
   }
 }
 

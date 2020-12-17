@@ -1,9 +1,9 @@
-#ifndef TBorder_DEFINED
-#define TBorder_DEFINED
+#ifndef TBody_DEFINED
+#define TBody_DEFINED
 
 #include "TScreen.hpp"
 
-void TScreen::drawBody(const int x, const int y, const TComponent &c) {
+void TScreen::drawBody(const int x, const int y, const TComponent &c) const {
   const int startX = x + c.fStyle.offset().x();
   // Below code counts same line twice
   const int startY = y + c.fStyle.offset().y();

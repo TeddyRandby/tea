@@ -10,6 +10,18 @@ public:
     TStyle() {};
     ~TStyle() {};
 
+    TStyle &collapse() {
+        fCollapsed = true; 
+        return *this;
+    }
+    TStyle &expand() {
+        fCollapsed = false; 
+        return *this;
+    }
+    bool getCollapse() const {
+        return fCollapsed;
+    }
+
     TStyle& horizontal() {
         fDirection = Direction::HORIZONTAL;        
         return *this;
@@ -113,6 +125,10 @@ private:
      */
     Direction fDirection = Direction::VERTICAL;
 
+    /**
+     *
+     */
+    bool fCollapsed = false;
 };
 
 #endif

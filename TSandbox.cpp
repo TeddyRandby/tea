@@ -11,6 +11,10 @@ typedef struct Proportional {
       c.addHeader(" Proportional");
       c.setBorder(1);
       c.setPadding(0);
+
+      if (fH < .3f){
+       c.collapse();
+      }
   } 
 
   private:
@@ -25,7 +29,7 @@ void extraBorder(TComponent &c) {
 }
 
 void bigMargin(TComponent &c) {
-  c.setMargin(2);
+  c.setMargin(0);
 }
 
 // FOr some reason, all the components under this are
@@ -37,10 +41,9 @@ int main(int argc, char *argv[]) {
     app.addHeader(" Application");
     //app.horizontal();
     app.setMargin(0);
-    app.setBorder(2);
 
     // Callabale structs...
-    Proportional left = Proportional(.5,.3);
+    Proportional left = Proportional(.5,.2);
     app.render(left);
 
     app.render([](TComponent &section2) {

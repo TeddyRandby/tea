@@ -57,6 +57,8 @@ private:
     generate();
     fScreen.resize();
     fScreen.draw(0, 0, *this);
+    fScreen.drawBorder(0,0,*this);
+    fScreen.drawHeader(0,0,*this);
     refresh();
   }
 };

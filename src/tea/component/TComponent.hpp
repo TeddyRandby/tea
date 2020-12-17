@@ -106,6 +106,7 @@ public:
     return *this;
   }
   Margin getMargin() const noexcept { return fStyle.getMargin(); }
+
   /**
    * Padding is the space between border and content.
    * If a border is present, this does NOT include the border.
@@ -131,6 +132,26 @@ public:
   }
   TComponent &vertical() noexcept {
     fStyle.vertical();
+    return *this;
+  }
+
+  /**
+   *
+   */
+  TComponent &collapse() noexcept {
+    fStyle.collapse();
+    return *this;
+  }
+  TComponent &expand() noexcept {
+    fStyle.expand();
+    return *this;
+  }
+  TComponent &toggle() noexcept {
+    if (fStyle.getCollapse()) {
+      fStyle.expand();
+    } else {
+      fStyle.collapse();
+    }
     return *this;
   }
 
@@ -257,7 +278,12 @@ public:
     }
 
     const SizeD min = minimumSize();
-    return SizeD(std::max<int>(w, min.x()), std::max<int>(h, min.y()));
+    w = std::max<int>(w, min.x());
+    h = std::max<int>(h, min.y());
+
+    if (fStyle.getCollapse()) 
+      h = 0;
+    return SizeD(w,h);
   }
 
   /**
@@ -303,6 +329,8 @@ public:
       offX = pad.x();
       offY = fContent.sizeBody().y() + pad.y();
     }
+    if (fStyle.getCollapse())
+      offY = 1 + fStyle.sizeMargin().y();
     return Offset(offX, offY);
   }
 
@@ -400,9 +428,14 @@ private:
     int b = fStyle.size().y();
     // DOn't count the same line twice.
     int h = y + b;
+
+    if (fStyle.getCollapse())
+      h = 1;
+
     for (auto &c : fSubComponents) {
       h += c.height();
     }
+
     return h;
   }
 };

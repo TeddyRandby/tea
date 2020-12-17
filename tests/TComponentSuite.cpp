@@ -318,4 +318,15 @@ TEST_F(TComponentSuite, InheritsStylesFromParent) {
   });
 }
 
+TEST_F(TComponentSuite, ManagesCollapsing) {
+  tea.render([](TComponent &test) {
+    test.setPadding(3);
+    test.collapse();
+
+    auto sz = test.size();
+    EXPECT_EQ(sz.x(), 398);
+    EXPECT_EQ(sz.y(), 1);
+  });
+}
+
 #endif

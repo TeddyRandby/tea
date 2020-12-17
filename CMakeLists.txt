@@ -21,7 +21,8 @@ add_library(screen
       ../src/tea/screen/TApplication.hpp
       ../src/tea/screen/TBorder.cpp
       ../src/tea/screen/THeader.cpp
-      ../src/tea/screen/TBody.cpp)
+      ../src/tea/screen/TBody.cpp
+      ../src/tea/screen/TCollapsed.cpp)
 
 add_library(component
       ../src/tea/component/TComponent.hpp
