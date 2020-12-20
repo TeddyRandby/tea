@@ -12,22 +12,19 @@ public:
     noecho();
     resize();
     clear();
+    curs_set(0);
   };
 
   ~TScreen() { }
 
   void draw(const int x, const int y, const TComponent &c) {
 
-    if (c.fStyle.getCollapse()) {
+    if (c.fStyle.getCollapsed()) {
       drawCollapsed(x,y,c);
     } else {
       drawBorder(x, y, c);
       drawHeader(x, y, c);
       drawBody(x, y, c);
-    }
-
-    // Rather than trying to shrink or disappear components, just find their minimum size.
-    // Padding and margin should be able to shrink.
 
     SizeD offset = c.offset() + SizeD{x,y};
 //    SizeD space = c.size()
@@ -39,6 +36,11 @@ public:
         offset += {0, sc.size().y() + 1};
       }
     }
+    }
+
+    // Rather than trying to shrink or disappear components, just find their minimum size.
+    // Padding and margin should be able to shrink.
+
 
   }
 

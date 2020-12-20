@@ -29,7 +29,11 @@ void extraBorder(TComponent &c) {
 }
 
 void bigMargin(TComponent &c) {
-  c.setMargin(0);
+  c.setMargin(2);
+}
+
+void makeDim(TComponent &c) {
+  c.onDim();
 }
 
 // FOr some reason, all the components under this are
@@ -44,16 +48,18 @@ int main(int argc, char *argv[]) {
 
     // Callabale structs...
     Proportional left = Proportional(.5,.2);
-    app.render(left);
+    app.render("Left", left);
 
-    app.render([](TComponent &section2) {
+    app.render("Margin",[](TComponent &section2) {
       section2.addHeader(" Section 2");
 
       // They can nest as much as you want too.
       section2.vertical();
 
+      makeDim(section2);
+
       // Or just plain functions.
-      section2.render(extraBorder);
+      section2.render("Border",extraBorder);
       section2.addLine("Press (Esc) to quit");
 
       // You can even use function components to modify components!
@@ -61,7 +67,7 @@ int main(int argc, char *argv[]) {
     });
 
     Proportional right = Proportional(.5,.3);
-    app.render(right);
+    app.render("Right",right);
 
     app.setPadding(3);
   });

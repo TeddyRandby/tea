@@ -3,7 +3,8 @@
 
 #include "TScreen.hpp"
 
-void TScreen::drawCollapsed(const int x, const int y, const TComponent &c) const {
+void TScreen::drawCollapsed(const int x, const int y,
+                            const TComponent &c) const {
   const Margin m = c.fStyle.getMargin();
   const Border b = c.fStyle.getBorder();
   const int startX = x + m.l();
@@ -15,26 +16,46 @@ void TScreen::drawCollapsed(const int x, const int y, const TComponent &c) const
   locX = startX;
   locY = startY;
 
-  const int capX = x + w.x() - m.r() - b.r();
+  chtype focused = c.focused() ? A_STANDOUT : A_DIM;
 
-  if (startX >= capX) {
-    return;
-  }
+  if (c.dir() == TStyle::Direction::VERTICAL) {
 
-  for (int i = startX; i < capX; i++) {
-    addPixel(i,locY,ACS_HLINE);    
-  }
+    const int capX = x + w.x() - m.r() - b.r();
 
-  for (const char ch : c.header()) {
-    if (locX > capX || ch == '\n') {
-      break;
-    } else if(ch == ' ') {
-      locX++;  
-    } else {
-      addPixel(locX,locY,ch);
-      locX++;
+    if (startX >= capX) {
+      return;
     }
+
+
+    for (int i = startX; i < capX; i++) {
+      addPixel(i, locY, ACS_HLINE | focused);
+    }
+
+    for (const char ch : c.header()) {
+      if (locX > capX || ch == '\n') {
+        break;
+      } else if (ch == ' ') {
+        locX++;
+      } else {
+        addPixel(locX, locY, ch | focused);
+        locX++;
+      }
+    }
+
+  } else {
+
+    const int capY = y + w.y() - m.b() - b.b();
+
+    if (startY >= capY) {
+      return;
+    }
+
+    for (int i = startY; i < capY; i++) {
+      addPixel(locX, i, ACS_VLINE | focused);
+    }
+    
   }
+
 }
 
 #endif

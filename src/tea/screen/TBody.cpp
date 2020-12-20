@@ -38,7 +38,7 @@ void TScreen::drawBody(const int x, const int y, const TComponent &c) const {
       locY++;
       locX = startX;
     } else {
-      addPixel(locX, locY, ch);
+      addPixel(locX, locY, ch | c.fStyle.attributes());
       locX++;
     }
   };

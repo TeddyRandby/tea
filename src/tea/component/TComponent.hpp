@@ -7,6 +7,7 @@
 #include <assert.h>
 #include <curses.h>
 #include <functional>
+#include <iostream>
 #include <string>
 #include <vector>
 
@@ -26,10 +27,11 @@ protected:
   /**
    * A TComponent cannot have a nullptr for a parent.
    */
-  TComponent(TComponent *p, Generator gen, TStyle styles = TStyle())
-      : fGenerator(gen), fStyle(styles) {
+  TComponent(TComponent *p, Generator gen, std::string key,  TStyle styles = TStyle())
+      : fGenerator(gen), fStyle(styles), fKey(key) {
     assert(p);
     fParent = p;
+    fIndex = p->fSubComponents.size();
   }
 
 public:
@@ -73,8 +75,8 @@ public:
    * Adds a child component with the given generator.
    * Returns a reference to the created component.
    */
-  TComponent &render(const Generator gen) noexcept {
-    fSubComponents.emplace_back(TComponent(this, gen, fStyle));
+  TComponent &render(const std::string key, const Generator gen) noexcept {
+    fSubComponents.emplace_back(TComponent(this, gen, key, fStyle));
     return *this;
   }
 
@@ -147,11 +149,70 @@ public:
     return *this;
   }
   TComponent &toggle() noexcept {
-    if (fStyle.getCollapse()) {
+    if (fStyle.getCollapsed()) {
       fStyle.expand();
     } else {
       fStyle.collapse();
     }
+    return *this;
+  }
+  /*
+   *
+   */
+  TComponent &onStandout() {
+    fStyle.onStandout();
+    return *this;
+  }
+  TComponent &offStandout() {
+    fStyle.offStandout();
+    return *this;
+  }
+
+  /*
+   *
+   */
+  TComponent &onUnderline() {
+    fStyle.onUnderline();
+    return *this;
+  }
+  TComponent &offUnderline() {
+    fStyle.offUnderline();
+    return *this;
+  }
+
+  /*
+   *
+   */
+  TComponent &onBlink() {
+    fStyle.onBlink();
+    return *this;
+  }
+  TComponent &offBlink() {
+    fStyle.offBlink();
+    return *this;
+  }
+
+  /*
+   *
+   */
+  TComponent &onDim() {
+    fStyle.onDim();
+    return *this;
+  }
+  TComponent &offDim() {
+    fStyle.offDim();
+    return *this;
+  }
+
+  /*
+   *
+   */
+  TComponent &onBold() {
+    fStyle.onBold();
+    return *this;
+  }
+  TComponent &offBold() {
+    fStyle.offBold();
     return *this;
   }
 
@@ -210,6 +271,50 @@ public:
   TComponent &setWH(const int w, const int h) noexcept {
     setWidth(w);
     setHeight(h);
+    return *this;
+  }
+
+  bool focused() const noexcept { return focused(fKey); }
+
+  TComponent &focus() noexcept {
+    focus(fKey);
+    return *this;
+  }
+
+  TComponent &unfocus() noexcept {
+    unfocus(fKey);
+    return *this;
+  }
+
+  TComponent &focusParent() noexcept {
+    if (focused() && fParent != this) {
+      fParent->focus();
+      unfocus();
+    }
+    return *this;
+  }
+
+  TComponent &focusChildren() noexcept {
+    if (focused() && fSubComponents.size() > 0) {
+      fSubComponents.front().focus();
+      unfocus();
+    }
+    return *this;
+  }
+
+  TComponent &focusPrevious() noexcept {
+    if (focused() && fIndex - 1 >= 0) {
+      fParent->fSubComponents[fIndex - 1].focus();
+      unfocus();
+    }
+    return *this;
+  }
+
+  TComponent &focusNext() noexcept {
+    if (focused() && fIndex + 1 < fParent->fSubComponents.size()) {
+      fParent->fSubComponents[fIndex + 1].focus();
+      unfocus();
+    }
     return *this;
   }
 
@@ -281,9 +386,15 @@ public:
     w = std::max<int>(w, min.x());
     h = std::max<int>(h, min.y());
 
-    if (fStyle.getCollapse()) 
-      h = 0;
-    return SizeD(w,h);
+    if (fStyle.getCollapsed()) {
+      if (dir() == TStyle::Direction::VERTICAL) {
+        h = 1;
+      } else {
+        w = 1;
+      }
+    }
+
+    return SizeD(w, h);
   }
 
   /**
@@ -329,7 +440,7 @@ public:
       offX = pad.x();
       offY = fContent.sizeBody().y() + pad.y();
     }
-    if (fStyle.getCollapse())
+    if (fStyle.getCollapsed())
       offY = 1 + fStyle.sizeMargin().y();
     return Offset(offX, offY);
   }
@@ -350,6 +461,7 @@ private:
    */
   TComponent *fParent = nullptr;
   SubComponents fSubComponents = {};
+  int fIndex = -1;
 
   /**
    * The render function supplied by the user.
@@ -391,6 +503,24 @@ private:
   int fWidthD = -1;
   int fHeightD = -1;
 
+  std::string fKey = "INVALID_KEY";
+
+  virtual bool focused(std::string uid) const {
+    return fParent->focused(uid);
+  }
+
+  virtual void focus(std::string uid) {
+    return fParent->focus(uid);
+  }
+
+  virtual void unfocus(std::string uid) {
+    return fParent->unfocus(uid);
+  }
+
+  /**
+   * When adding padding and content, subtract this vector to account
+   * for border and title occupying the same line.
+   */
   SizeD accountForDoubleCount() const {
     int y = fContent.sizeHeader().y() + fContent.sizeFooter().y();
     if (y > 0) {
@@ -398,6 +528,38 @@ private:
     } else {
       return SizeD{0, 0};
     }
+  }
+
+  /**
+   *
+   */
+  bool input(int key) {
+    if (!focused()) {
+      for (TComponent &c : fSubComponents) {
+        if (c.input(key)) {
+          return true;
+        }
+      }
+
+      return false;
+    } else {
+      std::cout << key << std::endl;
+      switch (key) {
+      case 72:
+        focusPrevious();
+        break;
+      case 74:
+        focusChildren();
+        break;
+      case 75:
+        focusParent();
+        break;
+      case 76:
+        focusNext();
+        break;
+      }
+      return true;
+    };
   }
 
   /**
@@ -429,7 +591,7 @@ private:
     // DOn't count the same line twice.
     int h = y + b;
 
-    if (fStyle.getCollapse())
+    if (fStyle.getCollapsed())
       h = 1;
 
     for (auto &c : fSubComponents) {

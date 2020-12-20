@@ -40,7 +40,7 @@ class TComponentSuite : public ::testing::Test {protected:
 };
 
 TEST_F(TComponentSuite, Initializes) {
-  tea.render([](TComponent &test) {
+  tea.render("test", [](TComponent &test) {
     EXPECT_EQ(test.body(), "");
     test.addLine("Hello World");
     EXPECT_EQ(test.dir(), 0);
@@ -48,7 +48,7 @@ TEST_F(TComponentSuite, Initializes) {
 }
 
 TEST_F(TComponentSuite, GeneratesContent) {
-  tea.render([](auto &test) {
+  tea.render("test",[](auto &test) {
     // After generating, the line appears in the content.
     test.addLine("Hello World").addHeader("Title");
     EXPECT_EQ(test.body(), "Hello World\n");
@@ -57,7 +57,7 @@ TEST_F(TComponentSuite, GeneratesContent) {
 }
 
 TEST_F(TComponentSuite, ManagesSimpleContentSize) {
-  tea.render([](TComponent &test) {
+  tea.render("test",[](TComponent &test) {
     test.addLine("Hello World");
     test.addHeader("Title");
 
@@ -69,7 +69,7 @@ TEST_F(TComponentSuite, ManagesSimpleContentSize) {
 }
 
 TEST_F(TComponentSuite, ManagesRelativeSize) {
-  tea.render([](TComponent &test) {
+  tea.render("test",[](TComponent &test) {
     test.addLine("Hello World").addHeader("Title").setWH(.5f, .3f);
 
     auto sz = test.size();
@@ -80,7 +80,7 @@ TEST_F(TComponentSuite, ManagesRelativeSize) {
 }
 
 TEST_F(TComponentSuite, ManagesSimpleTitleSize) {
-  tea.render([](TComponent &test) {
+  tea.render("test",[](TComponent &test) {
     test.addLine("Hello World");
     test.addHeader("This title is longer than the content.");
 
@@ -92,7 +92,7 @@ TEST_F(TComponentSuite, ManagesSimpleTitleSize) {
 }
 
 TEST_F(TComponentSuite, ManagesReverseSimpleTitleSize) {
-  tea.render([&](TComponent &test) {
+  tea.render("test",[&](TComponent &test) {
     test.addLine("Hello World");
     test.addHeader("This title is longer than the content.");
 
@@ -105,7 +105,7 @@ TEST_F(TComponentSuite, ManagesReverseSimpleTitleSize) {
   });}
 
 TEST_F(TComponentSuite, ManagesReverseSimpleContentSize) {
-  tea.render([&](TComponent &test) {
+  tea.render("test",[&](TComponent &test) {
     test.addLine("Hello World").addHeader("Title");
 
     tea.horizontal();
@@ -118,7 +118,7 @@ TEST_F(TComponentSuite, ManagesReverseSimpleContentSize) {
 }
 
 TEST_F(TComponentSuite, ManagesMarginContentSize) {
-  tea.render([](TComponent &test) {
+  tea.render("test",[](TComponent &test) {
     test.addLine("Hello World").addHeader("Title").setMargin(2);
 
     auto sz = test.size();
@@ -128,7 +128,7 @@ TEST_F(TComponentSuite, ManagesMarginContentSize) {
 }
 
 TEST_F(TComponentSuite, ManagesReverseMarginContentSize) {
-  tea.render([&](TComponent &test) {
+  tea.render("test",[&](TComponent &test) {
     test.addLine("Hello World").addHeader("Title").setMargin(2);
 
     tea.horizontal();
@@ -141,7 +141,7 @@ TEST_F(TComponentSuite, ManagesReverseMarginContentSize) {
 }
 
 TEST_F(TComponentSuite, ManagesBorderSize) {
-  tea.render([&](TComponent &test) {
+  tea.render("test",[&](TComponent &test) {
     test.addLine("Hello World").addHeader("Title").setBorder(0);
     tea.setBorder(0);
 
@@ -159,7 +159,7 @@ TEST_F(TComponentSuite, ManagesBorderSize) {
 }
 
 TEST_F(TComponentSuite, ManagesReverseBorderSize) {
-  tea.render([&](TComponent &test) {
+  tea.render("test",[&](TComponent &test) {
     test.addLine("Hello World").addHeader("Title").setBorder(0);
 
     tea.horizontal();
@@ -180,7 +180,7 @@ TEST_F(TComponentSuite, ManagesReverseBorderSize) {
 }
 
 TEST_F(TComponentSuite, ManagesTitleAndBorderSize) {
-  tea.render([&](TComponent &test) {
+  tea.render("test",[&](TComponent &test) {
     test.addLine("Hello World").addHeader("Title").setBorder(0);
 
     auto sz = test.size();
@@ -192,7 +192,7 @@ TEST_F(TComponentSuite, ManagesTitleAndBorderSize) {
 }
 
 TEST_F(TComponentSuite, ManagesMinimumSize) {
-  tea.render([&](TComponent &test) {
+  tea.render("test",[&](TComponent &test) {
     test.addLine("Hello World").addHeader("Title");
 
     auto sz = test.minimumSize();
@@ -212,23 +212,21 @@ TEST_F(TComponentSuite, ManagesMinimumSize) {
     EXPECT_EQ(sz.x(), 15);
     EXPECT_EQ(sz.y(), 3);
 
-    test.render([&](TComponent &child) {
+    test.render("child",[&](TComponent &child) {
       child.setBorder(2);
       auto csz = child.minimumSize();
-      EXPECT_EQ(csz.x(),4);
-      EXPECT_EQ(csz.y(),4);
+      EXPECT_EQ(csz.x(), 4);
+      EXPECT_EQ(csz.y(), 4);
 
       sz = test.minimumSize();
       EXPECT_EQ(sz.x(), 15);
       EXPECT_EQ(sz.y(), 7);
-
     });
-
   });
 }
 
 TEST_F(TComponentSuite, ManagesChildrenOffset) {
-  tea.render([&](TComponent &test) {
+  tea.render("test",[&](TComponent &test) {
     test.addLine("Hello World").addHeader("Title");
 
     auto sz = test.offset();
@@ -251,10 +249,10 @@ TEST_F(TComponentSuite, ManagesChildrenOffset) {
 }
 
 TEST_F(TComponentSuite, ManagesNestedChildrenSimpleSize) {
-  tea.render([](TComponent &test) {
+  tea.render("test",[](TComponent &test) {
     test.addLine("Hello World")
         .addHeader("Title")
-        .render([&](TComponent &child) {
+        .render("child",[&](TComponent &child) {
           child.addHeader("Child Title");
           child.addLine("Child Line");
 
@@ -270,10 +268,10 @@ TEST_F(TComponentSuite, ManagesNestedChildrenSimpleSize) {
 
 TEST_F(TComponentSuite, ManagesReverseNestedChildrenSimpleSize) {
   tea.horizontal();
-  tea.render([](TComponent &test) {
+  tea.render("test",[](TComponent &test) {
     test.addLine("Hello World")
         .addHeader("Title")
-        .render([&](TComponent &child) {
+        .render("child",[&](TComponent &child) {
           child.addHeader("Child Title");
           child.addLine("Child Line");
 
@@ -288,14 +286,14 @@ TEST_F(TComponentSuite, ManagesReverseNestedChildrenSimpleSize) {
 }
 
 TEST_F(TComponentSuite, ManagesSiblingChildrenSimpleSize) {
-  tea.render([](TComponent &test) {
+  tea.render("test",[](TComponent &test) {
     test.addLine("Hello World")
         .addHeader("Title")
-        .render([](TComponent &child) {
+        .render("child",[](TComponent &child) {
           child.addHeader("Child Title");
           child.addLine("Child Line");
         })
-        .render([&](TComponent &sibling) {
+        .render("sibling",[&](TComponent &sibling) {
           sibling.addHeader("Sibling Title");
           sibling.addLine("Sibling Line");
 
@@ -308,10 +306,10 @@ TEST_F(TComponentSuite, ManagesSiblingChildrenSimpleSize) {
 }
 
 TEST_F(TComponentSuite, InheritsStylesFromParent) {
-  tea.render([](TComponent &test) {
+  tea.render("test",[](TComponent &test) {
     test.setPadding(3);
     test.setBorder(0);
-    test.render([](TComponent &child) {
+    test.render("child",[](TComponent &child) {
       EXPECT_EQ(child.getPadding(), Padding(3, 3, 3, 3));
       EXPECT_EQ(child.getBorder(), Border(0, 0, 0, 0));
     });
@@ -319,7 +317,7 @@ TEST_F(TComponentSuite, InheritsStylesFromParent) {
 }
 
 TEST_F(TComponentSuite, ManagesCollapsing) {
-  tea.render([](TComponent &test) {
+  tea.render("test",[](TComponent &test) {
     test.setPadding(3);
     test.collapse();
 
@@ -328,5 +326,44 @@ TEST_F(TComponentSuite, ManagesCollapsing) {
     EXPECT_EQ(sz.y(), 1);
   });
 }
+
+TEST_F(TComponentSuite, ManagesFocus) {
+  EXPECT_TRUE(tea.TComponent::focused());
+
+  TComponent *first;
+  tea.render("test",[&](TComponent &test) {
+    tea.focusChildren();
+    EXPECT_TRUE(!tea.TComponent::focused());
+    EXPECT_TRUE(test.focused());
+
+    test.focusParent();
+    EXPECT_TRUE(tea.TComponent::focused());
+    EXPECT_TRUE(!test.focused());
+
+    first = &test;
+  });
+
+  tea.render("testSib",[&](TComponent &testSib) {
+    tea.focusChildren();
+    EXPECT_TRUE(!tea.TComponent::focused());
+    EXPECT_TRUE(!testSib.focused());
+
+    testSib.focusParent();
+    EXPECT_TRUE(!tea.TComponent::focused());
+    EXPECT_TRUE(!testSib.focused());
+
+    EXPECT_TRUE(first->focused());
+
+    first->focusNext();
+    EXPECT_TRUE(!tea.TComponent::focused());
+    EXPECT_TRUE(testSib.focused());
+    EXPECT_TRUE(!first->focused());
+
+    testSib.focusPrevious();
+    EXPECT_TRUE(!tea.TComponent::focused());
+    EXPECT_TRUE(!testSib.focused());
+    EXPECT_TRUE(first->focused());
+  });
+};
 
 #endif

@@ -21,6 +21,8 @@ void TScreen::drawHeader(const int x, const int y, const TComponent &c) const {
     return;
   }
 
+  chtype focused = c.focused() ? A_BOLD | A_STANDOUT : A_DIM;
+
   for (const char ch : c.header()) {
 
     if (locX > capX || ch == '\n') {
@@ -28,7 +30,7 @@ void TScreen::drawHeader(const int x, const int y, const TComponent &c) const {
     } else if(ch == ' ') {
       locX++;  
     } else {
-      addPixel(locX,locY,ch);
+      addPixel(locX,locY,ch | c.fStyle.attributes() | focused);
       locX++;
     }
 

@@ -1,6 +1,7 @@
 #ifndef TSyle_DEFINED
 #define TSyle_DEFINED
 
+#include "ncurses.h"
 #include "../utils/TVec.hpp"
 
 class TStyle {
@@ -10,6 +11,69 @@ public:
     TStyle() {};
     ~TStyle() {};
 
+    /*
+     *
+     */
+    TStyle &onStandout() {
+       fAttributes = fAttributes | A_STANDOUT;
+       return *this;
+    }
+    TStyle &offStandout() {
+       fAttributes = fAttributes & ~A_STANDOUT;
+       return *this;
+    }
+
+    /*
+     *
+     */
+    TStyle &onUnderline() {
+       fAttributes = fAttributes | A_UNDERLINE;
+       return *this;
+    }
+    TStyle &offUnderline() {
+       fAttributes = fAttributes & ~A_UNDERLINE;
+       return *this;
+    }
+
+    /*
+     *
+     */
+    TStyle &onBlink() {
+       fAttributes = fAttributes | A_BLINK;
+       return *this;
+    }
+    TStyle &offBlink() {
+       fAttributes = fAttributes & ~A_BLINK;
+       return *this;
+    }
+
+    /*
+     *
+     */
+    TStyle &onDim() {
+       fAttributes = fAttributes | A_DIM;
+       return *this;
+    }
+    TStyle &offDim() {
+       fAttributes = fAttributes & ~A_DIM;
+       return *this;
+    }
+
+    /*
+     *
+     */
+    TStyle &onBold() {
+       fAttributes = fAttributes | A_BOLD;
+       return *this;
+    }
+    TStyle &offBold() {
+       fAttributes = fAttributes & ~A_BOLD;
+       return *this;
+    }
+
+    /*
+     *
+     */
     TStyle &collapse() {
         fCollapsed = true; 
         return *this;
@@ -18,10 +82,13 @@ public:
         fCollapsed = false; 
         return *this;
     }
-    bool getCollapse() const {
+    bool getCollapsed() const {
         return fCollapsed;
     }
 
+    /*
+     *
+     */
     TStyle& horizontal() {
         fDirection = Direction::HORIZONTAL;        
         return *this;
@@ -36,6 +103,9 @@ public:
         return fDirection;
     }
 
+    /*
+     *
+     */
     TStyle& setBorder(const Border &b) {
         fBorder = b;        
         return *this;
@@ -53,6 +123,9 @@ public:
         return SizeD(fBorder.l() + fBorder.r(), fBorder.t() + fBorder.b());
     }
 
+    /*
+     *
+     */
     TStyle& setPadding(const Padding &p) {
         fPadding = p;        
         return *this;
@@ -70,6 +143,9 @@ public:
         return SizeD(fPadding.l() + fPadding.r(), fPadding.t() + fPadding.b());
     }
 
+    /*
+     *
+     */
     TStyle& setMargin(const Margin &m) {
         fMargin = m; 
         return *this;
@@ -85,6 +161,10 @@ public:
     }
     SizeD sizeMargin() const {
         return SizeD(fMargin.l() + fMargin.r(), fMargin.t() + fMargin.b());
+    }
+
+    chtype attributes() const noexcept {
+        return fAttributes;
     }
 
     /**
@@ -129,7 +209,10 @@ private:
      *
      */
     bool fCollapsed = false;
+
+    /**
+     *
+     */
+    chtype fAttributes = 0;
 };
-
 #endif
-

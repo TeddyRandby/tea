@@ -16,39 +16,41 @@ void TScreen::drawBorder(const int x, const int y, const TComponent &c) const {
     const int endX = x + w.x() - m.r();
     const int endY = y + w.y() - m.b();
 
+    chtype focused = c.focused() ? A_STANDOUT : A_DIM;
+
 
     for (int i = 0; i < b.t(); i++) {
       for (int j = startX + i; j < endX; j++)
-        addPixel(j, startY + i, ACS_HLINE);
+        addPixel(j, startY + i, ACS_HLINE | c.fStyle.attributes() | focused);
     }
 
     for (int i = 0; i < b.b(); i++) {
       for (int j = startX + i; j < endX; j++)
-        addPixel(j, endY - i, ACS_HLINE);
+        addPixel(j, endY - i, ACS_HLINE | c.fStyle.attributes() | focused);
     }
 
     for (int i = 0; i < b.l(); i++) {
       for (int j = startY + i; j < endY; j++)
-        addPixel(startX + i, j, ACS_VLINE);
+        addPixel(startX + i, j, ACS_VLINE | c.fStyle.attributes() | focused);
     }
 
     for (int i = 0; i < b.r(); i++) {
       for (int j = startY + i; j < endY; j++)
-        addPixel(endX - i, j, ACS_VLINE);
+        addPixel(endX - i, j, ACS_VLINE | c.fStyle.attributes() | focused);
     }
 
     for (int i = 0; i < b.l(); ++i) {
       if (i < b.t())
-        addPixel(startX + i, startY + i , ACS_ULCORNER);
+        addPixel(startX + i, startY + i , ACS_ULCORNER | c.fStyle.attributes() | focused);
       if (i < b.b())
-        addPixel(startX + i, endY - i , ACS_LLCORNER);
+        addPixel(startX + i, endY - i , ACS_LLCORNER | c.fStyle.attributes() | focused);
     }
 
     for (int i = 0; i < b.r(); ++i) {
       if (i < b.t())
-        addPixel(endX - i, startY + i, ACS_URCORNER);
+        addPixel(endX - i, startY + i, ACS_URCORNER | c.fStyle.attributes() | focused);
       if (i < b.b())
-        addPixel(endX - i, endY - i , ACS_LRCORNER);
+        addPixel(endX - i, endY - i , ACS_LRCORNER | c.fStyle.attributes() | focused);
     }
 };
 

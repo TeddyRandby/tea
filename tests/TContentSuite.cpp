@@ -2,7 +2,6 @@
 #define TContentSuite_DEFINED
 
 #include <gtest/gtest.h>
-#include <iostream>
 #include "../src/tea/component/TContent.hpp"
 
 // The fixture for testing class Foo.
