@@ -303,7 +303,7 @@ public:
   }
 
   TComponent &focusPrevious() noexcept {
-    if (focused() && fIndex - 1 >= 0) {
+    if (focused() && fIndex - 1 >= 0 && fParent != this) {
       fParent->fSubComponents[fIndex - 1].focus();
       unfocus();
     }
@@ -311,7 +311,7 @@ public:
   }
 
   TComponent &focusNext() noexcept {
-    if (focused() && fIndex + 1 < fParent->fSubComponents.size()) {
+    if (focused() && fIndex + 1 < fParent->fSubComponents.size() && fParent != this) {
       fParent->fSubComponents[fIndex + 1].focus();
       unfocus();
     }
@@ -540,10 +540,8 @@ private:
           return true;
         }
       }
-
       return false;
     } else {
-      std::cout << key << std::endl;
       switch (key) {
       case 72:
         focusPrevious();

@@ -70,9 +70,11 @@ private:
   void draw() {
     clear();
     this->TComponent::operator=(TComponent(this, fGenerator, fKey));
+    fIndex = 0;
     generate();
     fScreen.resize();
     fScreen.draw(0, 0, *this);
+    // Hack to draw border back over other content.
     fScreen.drawBorder(0,0,*this);
     fScreen.drawHeader(0,0,*this);
     refresh();
