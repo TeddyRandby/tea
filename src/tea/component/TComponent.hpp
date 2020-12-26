@@ -5,9 +5,7 @@
 #include "TContent.hpp"
 #include "TStyle.hpp"
 #include <assert.h>
-#include <curses.h>
 #include <functional>
-#include <iostream>
 #include <string>
 #include <vector>
 
@@ -22,6 +20,7 @@ class TComponent {
 
 protected:
   typedef std::function<void(TComponent &)> Generator;
+  typedef std::function<void(int)> TeaInput;
   typedef std::vector<TComponent> SubComponents;
 
   /**
@@ -274,6 +273,12 @@ public:
     return *this;
   }
 
+  // Maybe try to use td::move here.
+  TComponent &onInput(TeaInput h) {
+    fInputHandler = h;
+    return *this;
+  }
+
   bool focused() const noexcept { return focused(fKey); }
 
   TComponent &focus() noexcept {
@@ -503,6 +508,8 @@ private:
   int fWidthD = -1;
   int fHeightD = -1;
 
+  TeaInput fInputHandler = [](int key){};
+
   std::string fKey = "INVALID_KEY";
 
   virtual bool focused(std::string uid) const {
@@ -554,6 +561,9 @@ private:
         break;
       case 76:
         focusNext();
+        break;
+      default:
+        fInputHandler(key);
         break;
       }
       return true;

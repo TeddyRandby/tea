@@ -31,7 +31,6 @@ class TApplicationSuite: public ::testing::Test {
      // Code here will be called immediately after each test (right
      // before the destructor).
      tea.generate();
-     tea.~TApplication();
   }
 
   // Class members declared here can be used by all tests in the test suite
@@ -43,5 +42,6 @@ TEST_F(TApplicationSuite, InitializesTestMode) {
    EXPECT_TRUE(tea.size().x() != 0); 
    EXPECT_TRUE(tea.size().y() != 0);
 }
+
 
 #endif

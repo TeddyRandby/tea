@@ -2,6 +2,7 @@
 #define TApplication_DEFINED
 
 #include "TScreen.hpp"
+#include <map>
 #include <set>
 
 class TApplication : public TComponent {
@@ -10,10 +11,11 @@ public:
    * An application is the top-level component.
    * Therefore, an application's parent is itself.
    */
-  TApplication(Generator gen = [](auto &) {}, std::string key="Tea") : TComponent(this, gen, key){
-    TComponent::focus();
-  };
-  TApplication(const TApplication &app) : TComponent(this, app.fGenerator,app.fKey) {}
+  TApplication(
+      Generator gen = [](auto &) {}, std::string key = "Tea")
+      : TComponent(this, gen, key){};
+  TApplication(const TApplication &app)
+      : TComponent(this, app.fGenerator, app.fKey) {}
 
   ~TApplication(){};
   /**
@@ -42,8 +44,9 @@ public:
       if (key == KEY_RESIZE) {
         draw();
       } else {
-        if (input(key))
-          draw();
+        input(key);
+        endwin();
+        draw();
       }
     }
     endwin();
@@ -75,8 +78,8 @@ private:
     fScreen.resize();
     fScreen.draw(0, 0, *this);
     // Hack to draw border back over other content.
-    fScreen.drawBorder(0,0,*this);
-    fScreen.drawHeader(0,0,*this);
+    fScreen.drawBorder(0, 0, *this);
+    fScreen.drawHeader(0, 0, *this);
     refresh();
   }
 };
