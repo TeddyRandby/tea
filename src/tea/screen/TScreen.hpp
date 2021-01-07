@@ -31,9 +31,9 @@ public:
     for (auto &sc : c.fSubComponents) {
       draw(offset.x(), offset.y(), sc);
       if (c.dir() == TStyle::Direction::HORIZONTAL) {
-        offset += {sc.size().x() + 1,0};
+        offset += {sc.size().x(),0};
       } else {
-        offset += {0, sc.size().y() + 1};
+        offset += {0, sc.size().y()};
       }
     }
     }

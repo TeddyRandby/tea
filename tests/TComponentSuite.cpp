@@ -214,13 +214,14 @@ TEST_F(TComponentSuite, ManagesMinimumSize) {
 
     test.render("child",[&](TComponent &child) {
       child.setBorder(2);
+      child.addLine("Child Line");
       auto csz = child.minimumSize();
-      EXPECT_EQ(csz.x(), 4);
-      EXPECT_EQ(csz.y(), 4);
+      EXPECT_EQ(csz.x(), 14);
+      EXPECT_EQ(csz.y(), 5);
 
       sz = test.minimumSize();
-      EXPECT_EQ(sz.x(), 15);
-      EXPECT_EQ(sz.y(), 7);
+      EXPECT_EQ(sz.x(), 18);
+      EXPECT_EQ(sz.y(), 8);
     });
   });
 }

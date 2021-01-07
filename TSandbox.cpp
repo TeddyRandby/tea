@@ -3,6 +3,8 @@
 
 #include "build/TeaConfig.h"
 #include "src/tea/screen/TApplication.hpp"
+#include "src/tea/component/TCheckbox.hpp"
+#include <iostream>
 
 typedef struct Proportional {
   Proportional(const float w, const float h) : fW(w), fH(h) {}
@@ -20,33 +22,28 @@ private:
   float fW;
   float fH;
 
-} Proportional;
-
+} Proportional; 
 void extraBorder(TComponent &c) {
+  c.addLine("I have extra border.");
   c.addHeader("  Extra Border");
-  c.setBorder({2, 2, 1, 1});}
+  c.setBorder({2, 2, 1, 1});
+}
 
 void bigMargin(TComponent &c) { c.setMargin(2); }
-
-void makeDim(TComponent &c) { c.onDim(); }
 
 class TeaExample : public TApplication {
   public:
   TeaExample(): TApplication(
     [&](TComponent &app) {
-    app.addHeader(" Application ");
-    app.addHeader(this->extraTitle);
-    app.setMargin(0);
 
-
-    app.onInput([&](int key) {
+    app.onInput([this](int key) {
       if (key == 104) {
         isVertical = false;
-        this->extraTitle = "Horizontal";
+        extraTitle = "Horizontal";
       }
       if (key == 118) {
         isVertical = true;
-        this->extraTitle = "Vertical";
+        extraTitle = "Vertical";
       }
     });
 
@@ -56,22 +53,40 @@ class TeaExample : public TApplication {
       app.horizontal();
     }
 
+    app.addHeader(" Application ");
+    app.addHeader(this->extraTitle);
+    app.setMargin(0);
+
     // Callabale structs...
     Proportional left = Proportional(.5, .2);
     app.render("Left", left);
 
-    app.render("Margin", [](TComponent &section2) {
-      section2.addHeader("Section 2");
+    app.render("Margin", [&](TComponent &section2) {
+      section2.addHeader(" Section 2");
 
       // They can nest as much as you want too.
       section2.vertical();
 
-      makeDim(section2);
+      section2.render("sample", [](TComponent &c){
+       c.addLine("Here is some helpful text."); 
+      });
 
       // Or just plain functions.
-      section2.render("Border", extraBorder);
+      section2.render("Border1", extraBorder);
+      section2.render("Border2", extraBorder);
+      section2.render("Border3", extraBorder);
       section2.addLine("Press (Esc) to quit");
 
+      TCheckbox chbx = TCheckbox(this->chbox,"Here is a checkbox. Toggle w spc");
+      section2.render("checkbox", chbx);
+
+      section2.onInput([&](int key) {
+        if (key == 32) {
+         this->chbox = !this->chbox;
+         return true;
+        }
+        return false;
+      });
       // You can even use function components to modify components!
       bigMargin(section2);
     });
@@ -86,6 +101,7 @@ class TeaExample : public TApplication {
   //mem vars
   std::string extraTitle = "Vertical";
   bool isVertical = true;
+  bool chbox = false;
 };
 
 int main(int argc, char *argv[]) {

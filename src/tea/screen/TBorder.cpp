@@ -13,29 +13,29 @@ void TScreen::drawBorder(const int x, const int y, const TComponent &c) const {
 
     const int startX = x + m.l();
     const int startY = y + m.t();
-    const int endX = x + w.x() - m.r();
-    const int endY = y + w.y() - m.b();
+    const int endX = x + w.x() - m.r()-1;
+    const int endY = y + w.y() - m.b()-1;
 
     chtype focused = c.focused() ? A_STANDOUT : A_DIM;
 
 
     for (int i = 0; i < b.t(); i++) {
-      for (int j = startX + i; j < endX; j++)
+      for (int j = startX; j < endX; j++)
         addPixel(j, startY + i, ACS_HLINE | c.fStyle.attributes() | focused);
     }
 
     for (int i = 0; i < b.b(); i++) {
-      for (int j = startX + i; j < endX; j++)
+      for (int j = startX; j < endX; j++)
         addPixel(j, endY - i, ACS_HLINE | c.fStyle.attributes() | focused);
     }
 
     for (int i = 0; i < b.l(); i++) {
-      for (int j = startY + i; j < endY; j++)
+      for (int j = startY; j < endY; j++)
         addPixel(startX + i, j, ACS_VLINE | c.fStyle.attributes() | focused);
     }
 
     for (int i = 0; i < b.r(); i++) {
-      for (int j = startY + i; j < endY; j++)
+      for (int j = startY; j < endY; j++)
         addPixel(endX - i, j, ACS_VLINE | c.fStyle.attributes() | focused);
     }
 

@@ -2,7 +2,6 @@
 #define TApplication_DEFINED
 
 #include "TScreen.hpp"
-#include <map>
 #include <set>
 
 class TApplication : public TComponent {
@@ -44,9 +43,8 @@ public:
       if (key == KEY_RESIZE) {
         draw();
       } else {
-        input(key);
-        endwin();
-        draw();
+          input(key);
+          draw();
       }
     }
     endwin();
