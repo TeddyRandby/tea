@@ -17,6 +17,8 @@ void TScreen::drawBody(const int x, const int y, const TComponent &c) const {
   const Border b = c.fStyle.getBorder();
   const Margin m = c.fStyle.getMargin();
 
+  chtype focused = c.focused() && b == Border{0,0,0,0} ? A_STANDOUT : A_DIM;
+
   const int capX = x + w.x() - b.r() - m.r();
   const int capY = y + w.y() - b.b() - m.r();
 
@@ -38,7 +40,7 @@ void TScreen::drawBody(const int x, const int y, const TComponent &c) const {
       locY++;
       locX = startX;
     } else {
-      addPixel(locX, locY, ch | c.fStyle.attributes());
+      addPixel(locX, locY, ch | c.fStyle.attributes() | focused);
       locX++;
     }
   };

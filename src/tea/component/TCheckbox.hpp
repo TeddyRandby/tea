@@ -4,9 +4,12 @@
 #include "TComponent.hpp"
 
 typedef struct TCheckbox {
-   TCheckbox(bool status, std::string line):fStatus(status), fLine(line){};
+   TCheckbox(bool status, std::string line, std::function<bool(int)> inputHandler=[](int key){return true;}):fStatus(status), fLine(line), fInputHandler(inputHandler){};
 
    void operator()(TComponent &c) {
+      c.setBorder(0);
+
+      c.onInput(fInputHandler);
 
       std::string line = "[";
 
@@ -21,7 +24,7 @@ typedef struct TCheckbox {
 
    const bool fStatus = false;
    const std::string fLine = "";
-
+   const std::function<bool(int)> fInputHandler;
 } TCheckbox;
 
 #endif

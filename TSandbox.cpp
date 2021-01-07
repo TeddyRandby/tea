@@ -77,16 +77,15 @@ class TeaExample : public TApplication {
       section2.render("Border3", extraBorder);
       section2.addLine("Press (Esc) to quit");
 
-      TCheckbox chbx = TCheckbox(this->chbox,"Here is a checkbox. Toggle w spc");
-      section2.render("checkbox", chbx);
-
-      section2.onInput([&](int key) {
+      TCheckbox chbx = TCheckbox(this->chbox,"Here is a checkbox. Toggle w spc",[&](int key) {
         if (key == 32) {
          this->chbox = !this->chbox;
          return true;
         }
         return false;
       });
+      section2.render("checkbox", chbx);
+
       // You can even use function components to modify components!
       bigMargin(section2);
     });

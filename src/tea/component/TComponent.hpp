@@ -20,7 +20,7 @@ class TComponent {
 
 protected:
   typedef std::function<void(TComponent &)> Generator;
-  typedef std::function<void(int)> TeaInput;
+  typedef std::function<void(int)> TInput;
   typedef std::vector<TComponent> SubComponents;
 
   /**
@@ -274,7 +274,7 @@ public:
   }
 
   // Maybe try to use td::move here.
-  TComponent &onInput(TeaInput h) {
+  TComponent &onInput(TInput h) {
     fInputHandler = h;
     return *this;
   }
@@ -508,7 +508,7 @@ private:
   int fWidthD = -1;
   int fHeightD = -1;
 
-  TeaInput fInputHandler = [](int key){};
+  TInput fInputHandler = [](int key){};
 
   std::string fKey = "INVALID_KEY";
 
